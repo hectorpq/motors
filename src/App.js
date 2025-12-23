@@ -5,12 +5,14 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import Productos from './components/Productos';
 import ProductoDetalle from './components/ProductoDetalle';
-import ProductoEditar from './components/ProductoEditar'; // ← NUEVA IMPORTACIÓN
+import ProductoEditar from './components/ProductoEditar';
 import ProductoVentas from './components/ProductoVentas';
 import Movimientos from './components/Movimientos';
 import Compras from './components/Compras';
 import Facturas from './components/Facturas';
 import ComprasRegistro from './components/ComprasRegistro';
+import Etiquetas from './components/Etiquetas'; // ← NUEVA IMPORTACIÓN
+import Administracion from './components/Administracion'; // ← NUEVA IMPORTACIÓN
 import './App.css';
 
 function App() {
@@ -57,16 +59,22 @@ function App() {
               {/* Rutas de Productos */}
               <Route path="/productos" element={<Productos />} />
               <Route path="/productos/:id" element={<ProductoDetalle />} />
-              <Route path="/productos/editar/:id" element={<ProductoEditar />} /> {/* ← NUEVA RUTA */}
+              <Route path="/productos/editar/:id" element={<ProductoEditar />} />
               <Route path="/productos/ventas" element={<ProductoVentas />} />
               
-              {/* Otras rutas */}
+              {/* Rutas de Movimientos (Kardex) */}
               <Route path="/movimientos" element={<Movimientos />} />
-              <Route path="/compras" element={<Compras />} />
               
               {/* Rutas de Compras */}
+              <Route path="/compras" element={<Compras />} />
               <Route path="/compras/facturas" element={<Facturas />} />
               <Route path="/compras/registro" element={<ComprasRegistro />} />
+              
+              {/* Ruta de Etiquetas */}
+              <Route path="/etiquetas" element={<Etiquetas />} /> {/* ← NUEVA RUTA */}
+              
+              {/* Ruta de Administración */}
+              <Route path="/administracion" element={<Administracion />} /> {/* ← NUEVA RUTA */}
             </Routes>
           </main>
         </div>
