@@ -11,6 +11,16 @@ const ComprasRegistro = () => {
   const [busqueda, setBusqueda] = useState('');
   const [proveedores, setProveedores] = useState([]);
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [modalNuevoProveedor, setModalNuevoProveedor] = useState(false);
+  const [nuevoProveedorData, setNuevoProveedorData] = useState({
+    ruc: '',
+    nombre: '',
+    razonSocial: '',
+    direccion: '',
+    telefono: '',
+    email: '',
+    contacto: ''
+  });
 
   const sedes = [
     { id: 'todas', nombre: 'Todas las Sedes', icono: '🌐' },
@@ -184,6 +194,65 @@ const ComprasRegistro = () => {
     setBusqueda('');
   };
 
+  const handleInputProveedorChange = (field, value) => {
+    setNuevoProveedorData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const validarRUC = (ruc) => {
+    // Validación básica de RUC peruano (11 dígitos)
+    return /^\d{11}$/.test(ruc);
+  };
+
+  const guardarNuevoProveedor = async () => {
+    // Validaciones
+    if (!nuevoProveedorData.ruc || !nuevoProveedorData.nombre) {
+      alert('⚠️ Por favor completa los campos obligatorios (RUC y Nombre)');
+      return;
+    }
+
+    if (!validarRUC(nuevoProveedorData.ruc)) {
+      alert('⚠️ El RUC debe tener 11 dígitos');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/proveedores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nuevoProveedorData)
+      });
+
+      if (response.ok) {
+        const proveedorCreado = await response.json();
+        // Actualizar lista de proveedores
+        setProveedores([...proveedores, proveedorCreado]);
+        // Seleccionar el nuevo proveedor
+        setProveedor(proveedorCreado.id);
+        // Cerrar modal y limpiar
+        setModalNuevoProveedor(false);
+        setNuevoProveedorData({
+          ruc: '',
+          nombre: '',
+          razonSocial: '',
+          direccion: '',
+          telefono: '',
+          email: '',
+          contacto: ''
+        });
+        alert('✅ Proveedor registrado exitosamente');
+      } else {
+        const error = await response.json();
+        alert(`❌ Error al registrar proveedor: ${error.message || 'Error desconocido'}`);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('❌ Error al registrar el proveedor');
+    }
+  };
+
   return (
     <div className="compras-registro-container">
       {/* Header */}
@@ -223,7 +292,13 @@ const ComprasRegistro = () => {
                 <label>Proveedor *</label>
                 <select
                   value={proveedor}
-                  onChange={(e) => setProveedor(e.target.value)}
+                  onChange={(e) => {
+                    if (e.target.value === 'nuevo') {
+                      setModalNuevoProveedor(true);
+                    } else {
+                      setProveedor(e.target.value);
+                    }
+                  }}
                   className="form-control"
                 >
                   <option value="">Seleccionar proveedor...</option>
@@ -232,6 +307,9 @@ const ComprasRegistro = () => {
                       {prov.ruc} - {prov.nombre}
                     </option>
                   ))}
+                  <option value="nuevo" className="option-agregar">
+                    ➕ Agregar Nuevo Proveedor
+                  </option>
                 </select>
               </div>
 
@@ -452,6 +530,128 @@ const ComprasRegistro = () => {
                 onClick={confirmarRegistro}
               >
                 ✅ Confirmar Registro
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Nuevo Proveedor */}
+      {modalNuevoProveedor && (
+        <div className="modal-overlay" onClick={() => setModalNuevoProveedor(false)}>
+          <div className="modal-content modal-proveedor" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>➕ Agregar Nuevo Proveedor</h2>
+            </div>
+            <div className="modal-body">
+              <div className="form-proveedor-grid">
+                <div className="form-group">
+                  <label>RUC *</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: 20123456789"
+                    maxLength="11"
+                    value={nuevoProveedorData.ruc}
+                    onChange={(e) => handleInputProveedorChange('ruc', e.target.value)}
+                    className="form-control"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Nombre Comercial *</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Repuestos Honda Perú"
+                    value={nuevoProveedorData.nombre}
+                    onChange={(e) => handleInputProveedorChange('nombre', e.target.value)}
+                    className="form-control"
+                  />
+                </div>
+
+                <div className="form-group" style={{gridColumn: '1 / -1'}}>
+                  <label>Razón Social</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Distribuidora Automotriz SAC"
+                    value={nuevoProveedorData.razonSocial}
+                    onChange={(e) => handleInputProveedorChange('razonSocial', e.target.value)}
+                    className="form-control"
+                  />
+                </div>
+
+                <div className="form-group" style={{gridColumn: '1 / -1'}}>
+                  <label>Dirección</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Av. Industrial 123, Lima"
+                    value={nuevoProveedorData.direccion}
+                    onChange={(e) => handleInputProveedorChange('direccion', e.target.value)}
+                    className="form-control"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Teléfono</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: 987654321"
+                    value={nuevoProveedorData.telefono}
+                    onChange={(e) => handleInputProveedorChange('telefono', e.target.value)}
+                    className="form-control"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Email</label>
+                  <input
+                    type="email"
+                    placeholder="Ej: ventas@proveedor.com"
+                    value={nuevoProveedorData.email}
+                    onChange={(e) => handleInputProveedorChange('email', e.target.value)}
+                    className="form-control"
+                  />
+                </div>
+
+                <div className="form-group" style={{gridColumn: '1 / -1'}}>
+                  <label>Persona de Contacto</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Juan Pérez"
+                    value={nuevoProveedorData.contacto}
+                    onChange={(e) => handleInputProveedorChange('contacto', e.target.value)}
+                    className="form-control"
+                  />
+                </div>
+              </div>
+
+              <div className="info-nota">
+                <span className="icono-info">ℹ️</span>
+                <p>Los campos marcados con * son obligatorios</p>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button
+                className="btn-modal-cancelar"
+                onClick={() => {
+                  setModalNuevoProveedor(false);
+                  setNuevoProveedorData({
+                    ruc: '',
+                    nombre: '',
+                    razonSocial: '',
+                    direccion: '',
+                    telefono: '',
+                    email: '',
+                    contacto: ''
+                  });
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn-modal-confirmar"
+                onClick={guardarNuevoProveedor}
+              >
+                ✅ Guardar Proveedor
               </button>
             </div>
           </div>
