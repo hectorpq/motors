@@ -1,0 +1,331 @@
+/* Sidebar.css - Diseño Azul Moderno */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+  color: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.sidebar.open {
+  width: 260px;
+}
+
+.sidebar.closed {
+  width: 70px;
+}
+
+.sidebar-overlay {
+  display: none;
+}
+
+/* Header del Sidebar */
+.sidebar-header {
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.3rem;
+}
+
+.logo-icon {
+  font-size: 2rem;
+  min-width: 45px;
+  text-align: center;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.logo-text {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.logo-subtitle {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  padding-left: 3.2rem;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.sidebar.closed .logo-text,
+.sidebar.closed .logo-subtitle {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+/* Menú */
+.sidebar-menu {
+  flex: 1;
+  padding: 1rem 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.menu-item-wrapper {
+  margin: 0.2rem 0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+  gap: 0.9rem;
+  margin: 0 0.5rem;
+  border-radius: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  transform: translateX(3px);
+}
+
+.menu-item.active {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.menu-item.expanded {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.menu-icon {
+  font-size: 1.5rem;
+  min-width: 38px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.menu-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  flex: 1;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.submenu-arrow {
+  font-size: 0.7rem;
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+
+.sidebar.closed .menu-label,
+.sidebar.closed .submenu-arrow {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+/* Submenú */
+.submenu {
+  background: rgba(0, 0, 0, 0.15);
+  margin: 0.3rem 0.5rem 0.5rem 0.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 200px;
+  }
+}
+
+.submenu-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem 0.75rem 2.8rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.submenu-item::before {
+  content: '';
+  position: absolute;
+  left: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+}
+
+.submenu-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding-left: 3rem;
+}
+
+.submenu-item.active {
+  background: rgba(59, 130, 246, 0.3);
+  color: white;
+  font-weight: 600;
+}
+
+.submenu-item.active::before {
+  background: white;
+  width: 6px;
+  height: 6px;
+}
+
+.submenu-icon {
+  font-size: 1.1rem;
+}
+
+.submenu-label {
+  font-size: 0.9rem;
+}
+
+/* Footer del Sidebar */
+.sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.user-info:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.user-avatar {
+  font-size: 2rem;
+  min-width: 42px;
+  text-align: center;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+}
+
+.sidebar.closed .user-details {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+/* Scrollbar personalizada */
+.sidebar-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-menu::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Responsive - Móvil */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    width: 260px;
+  }
+
+  .sidebar.closed {
+    transform: translateX(-100%);
+  }
+
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    animation: fadeIn 0.3s;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

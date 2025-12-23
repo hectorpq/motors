@@ -1,0 +1,385 @@
+.detalle-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.btn-back {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  transition: all 0.2s ease;
+}
+
+.btn-back:hover {
+  background: #f8f9fa;
+  border-color: #667eea;
+  color: #667eea;
+}
+
+/* Header */
+.detalle-header {
+  margin-bottom: 2rem;
+}
+
+.header-badge {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  background: #e3f2fd;
+  color: #1976d2;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.detalle-header h1 {
+  font-size: 2rem;
+  color: #1a1a2e;
+  margin: 0.5rem 0;
+  font-weight: 700;
+}
+
+.codigo-principal {
+  color: #666;
+  font-size: 1rem;
+  font-family: 'Courier New', monospace;
+  margin: 0.5rem 0 0 0;
+}
+
+/* Content Layout */
+.detalle-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-bottom: 3rem;
+}
+
+/* Imagen */
+.detalle-imagen {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.imagen-principal {
+  aspect-ratio: 1;
+  background: #f8f9fa;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-imagen {
+  text-align: center;
+  color: #999;
+  font-size: 4rem;
+}
+
+.placeholder-imagen p {
+  font-size: 1rem;
+  margin-top: 1rem;
+}
+
+/* Info y Compra */
+.detalle-info {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.precio-section {
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.precio-actual {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.precio-label {
+  font-size: 1.1rem;
+  color: #666;
+  font-weight: 600;
+}
+
+.precio-valor {
+  font-size: 2.5rem;
+  color: #2ecc71;
+  font-weight: 700;
+}
+
+/* Tabla de Precios por Volumen */
+.precios-volumen {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.precios-volumen h4 {
+  margin: 0 0 1rem 0;
+  font-size: 0.9rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.precios-volumen table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.precios-volumen th {
+  text-align: left;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  color: #666;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.precios-volumen td {
+  padding: 0.7rem 0.5rem;
+  border-bottom: 1px solid #dee2e6;
+  font-weight: 600;
+}
+
+.precios-volumen tr.descuento {
+  background: #d4edda;
+  color: #155724;
+}
+
+/* Cantidad */
+.cantidad-section {
+  margin-bottom: 1.5rem;
+}
+
+.cantidad-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.cantidad-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.cantidad-control button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.3rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.cantidad-control button:hover {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.cantidad-control input {
+  width: 80px;
+  height: 40px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.stock-disponible {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.stock-disponible strong {
+  color: #2ecc71;
+}
+
+/* Total */
+.total-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.total-label {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.total-valor {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+/* Botón Agregar */
+.btn-agregar {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-agregar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.alerta-stock {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #fff3cd;
+  color: #856404;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Especificaciones */
+.especificaciones-section {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+
+.especificaciones-section h3 {
+  margin: 0 0 1.5rem 0;
+  color: #1a1a2e;
+  font-size: 1.3rem;
+}
+
+.specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.spec-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.spec-label {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.spec-value {
+  font-size: 1rem;
+  color: #1a1a2e;
+  font-weight: 600;
+}
+
+.descripcion-completa {
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.descripcion-completa h4 {
+  margin: 0 0 1rem 0;
+  color: #495057;
+}
+
+.descripcion-completa p {
+  margin: 0;
+  line-height: 1.6;
+  color: #666;
+}
+
+/* Códigos OEM */
+.codigos-section {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.codigos-section h3 {
+  margin: 0 0 1.5rem 0;
+  color: #1a1a2e;
+  font-size: 1.3rem;
+}
+
+.tabla-codigos {
+  overflow-x: auto;
+}
+
+.tabla-codigos table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-codigos th {
+  text-align: left;
+  padding: 1rem;
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.tabla-codigos td {
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+  color: #333;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 4rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+@media (max-width: 968px) {
+  .detalle-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .specs-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .precio-valor {
+    font-size: 2rem;
+  }
+}

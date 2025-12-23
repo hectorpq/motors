@@ -1,0 +1,574 @@
+/* Productos - Gestión Moderno */
+.productos-container-modern {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 24px;
+}
+
+/* Header */
+.productos-header-modern {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.productos-header-modern h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-icon {
+  font-size: 24px;
+  color: #8b5cf6;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.user-role {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Sedes Container - GRANDES */
+.sedes-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.sede-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  background-color: white;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sede-btn:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.sede-btn.active {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border-color: #6366f1;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.sede-icon {
+  font-size: 20px;
+}
+
+/* Search Section */
+.search-section {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.search-bar-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.search-input-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #9ca3af;
+}
+
+.search-input {
+  width: 100%;
+  padding: 14px 16px 14px 48px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #374151;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.btn-search-action,
+.btn-chart-action {
+  padding: 14px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-search-action {
+  background-color: #6366f1;
+  color: white;
+}
+
+.btn-search-action:hover {
+  background-color: #4f46e5;
+}
+
+.btn-chart-action {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.btn-chart-action:hover {
+  background-color: #e5e7eb;
+}
+
+/* Filters */
+.filters-container {
+  display: flex;
+  gap: 12px;
+}
+
+.filter-select {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #374151;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Table Container */
+.table-container-modern {
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.productos-table-modern {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.productos-table-modern thead {
+  background-color: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.productos-table-modern th {
+  padding: 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+  text-transform: none;
+}
+
+.productos-table-modern td {
+  padding: 16px;
+  font-size: 14px;
+  color: #1f2937;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.productos-table-modern tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.productos-table-modern tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Ver Ficha Button */
+.btn-ver-ficha {
+  padding: 8px 16px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-ver-ficha:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+/* Sede Badge */
+.sede-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sede-deybimotors {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.sede-deybi-parts {
+  background-color: #fed7aa;
+  color: #c2410c;
+}
+
+.sede-deybi-auto {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.sede-default {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* Código Cell */
+.codigo-cell {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Stock Number */
+.stock-number {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.stock-number.sin-stock {
+  color: #dc2626;
+}
+
+.stock-number.stock-bajo {
+  color: #f59e0b;
+}
+
+/* Estado Badge */
+.estado-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.estado-en-stock {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.estado-stock-bajo {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.estado-sin-stock {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Acciones */
+.acciones-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-accion-icon {
+  padding: 8px;
+  border: none;
+  background-color: transparent;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-accion-icon.view:hover {
+  background-color: #dbeafe;
+}
+
+.btn-accion-icon.edit:hover {
+  background-color: #fef3c7;
+}
+
+.btn-accion-icon.delete:hover {
+  background-color: #fee2e2;
+}
+
+/* Export Buttons */
+.export-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-export.excel,
+.btn-export.pdf {
+  background-color: #10b981;
+}
+
+.btn-export.excel:hover,
+.btn-export.pdf:hover {
+  background-color: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* No Resultados */
+.no-resultados-modern {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.icon-empty {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.no-resultados-modern p {
+  font-size: 18px;
+  font-weight: 600;
+  color: #6b7280;
+  margin: 0 0 8px 0;
+}
+
+.no-resultados-modern small {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content-modern {
+  background-color: white;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content-modern h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 12px 0;
+}
+
+.modal-content-modern p {
+  font-size: 15px;
+  color: #6b7280;
+  margin: 0 0 20px 0;
+}
+
+.producto-info-modal {
+  background-color: #f9fafb;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.producto-info-modal strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.producto-info-modal span {
+  display: block;
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.producto-info-modal small {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-cancelar,
+.btn-confirmar-eliminar {
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cancelar {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.btn-cancelar:hover {
+  background-color: #e5e7eb;
+}
+
+.btn-confirmar-eliminar {
+  background-color: #dc2626;
+  color: white;
+}
+
+.btn-confirmar-eliminar:hover {
+  background-color: #b91c1c;
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.loading-spinner {
+  width: 64px;
+  height: 64px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-container p {
+  font-size: 16px;
+  color: #6b7280;
+}
+
+/* Utilities */
+.text-center {
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .sedes-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .sedes-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .search-bar-container {
+    flex-direction: column;
+  }
+  
+  .filters-container {
+    flex-direction: column;
+  }
+  
+  .export-buttons {
+    flex-direction: column;
+  }
+  
+  .table-container-modern {
+    overflow-x: auto;
+  }
+}
