@@ -1,319 +1,278 @@
 .facturas-container {
   padding: 20px;
   background: #f5f7fa;
-  min-height: 100vh;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: calc(100vh - 60px);
 }
 
 /* Header */
 .facturas-header {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.header-icon {
-  font-size: 48px;
-}
-
-.facturas-header h1 {
+.header-titulo-facturas h1 {
+  margin: 0 0 5px 0;
   color: #2c3e50;
-  font-size: 32px;
+  font-size: 28px;
+}
+
+.header-titulo-facturas p {
   margin: 0;
-  font-weight: 600;
-}
-
-.subtitle {
   color: #7f8c8d;
-  font-size: 15px;
-  margin: 5px 0 0 0;
+  font-size: 14px;
 }
 
-.btn-nueva-factura {
+.btn-nueva-compra {
   padding: 12px 24px;
-  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+  transition: all 0.3s;
 }
 
-.btn-nueva-factura:hover {
+.btn-nueva-compra:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(46, 204, 113, 0.4);
-}
-
-/* Selector de Sedes */
-.sedes-selector {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-  margin-bottom: 30px;
-}
-
-.sede-card {
-  background: white;
-  border: 3px solid #e0e6ed;
-  border-radius: 12px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-align: center;
-}
-
-.sede-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-color: #3498db;
-}
-
-.sede-card.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: #667eea;
-  color: white;
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
-.sede-icon {
-  font-size: 40px;
-  line-height: 1;
-}
-
-.sede-nombre {
-  font-size: 16px;
-  font-weight: 600;
-}
-
 /* Estadísticas */
-.estadisticas-grid {
+.estadisticas-facturas {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
-.stat-card {
+.stat-card-factura {
   background: white;
-  border-radius: 12px;
   padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   display: flex;
   align-items: center;
   gap: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease;
+  transition: all 0.3s;
 }
 
-.stat-card:hover {
+.stat-card-factura:hover {
   transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 }
 
-.stat-icon {
+.stat-icono {
   font-size: 48px;
+  opacity: 0.8;
 }
 
-.stat-content h3 {
-  margin: 0 0 8px 0;
-  color: #7f8c8d;
-  font-size: 14px;
-  font-weight: 500;
-  text-transform: uppercase;
+.stat-datos {
+  display: flex;
+  flex-direction: column;
 }
 
-.stat-value {
-  margin: 0;
-  color: #2c3e50;
+.stat-numero {
   font-size: 28px;
-  font-weight: 700;
+  font-weight: bold;
+  color: #2c3e50;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #7f8c8d;
 }
 
 /* Filtros */
-.filtros-section {
+.filtros-facturas {
   background: white;
-  border-radius: 12px;
   padding: 20px;
+  border-radius: 12px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.filtros-principales {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.select-filtro-factura,
+.input-busqueda-factura {
+  padding: 12px 15px;
+  border: 2px solid #e0e6ed;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.select-filtro-factura:focus,
+.input-busqueda-factura:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.acciones-seleccionadas {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
+  padding-top: 15px;
+  border-top: 2px solid #e0e6ed;
 }
 
-.filtros-tabs {
-  display: flex;
-  gap: 10px;
+.acciones-seleccionadas span {
+  color: #667eea;
+  font-weight: 600;
 }
 
-.tab {
+.btn-exportar {
   padding: 10px 20px;
-  border: 2px solid #e0e6ed;
-  background: white;
+  background: #27ae60;
+  color: white;
+  border: none;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: #5a6c7d;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
 }
 
-.tab:hover {
-  border-color: #3498db;
-  color: #3498db;
-}
-
-.tab.active {
-  background: #3498db;
-  border-color: #3498db;
-  color: white;
-}
-
-.busqueda-input {
-  position: relative;
-  flex: 1;
-  max-width: 400px;
-}
-
-.search-icon {
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 18px;
-}
-
-.busqueda-input input {
-  width: 100%;
-  padding: 10px 15px 10px 45px;
-  border: 2px solid #e0e6ed;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: all 0.3s ease;
-}
-
-.busqueda-input input:focus {
-  outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+.btn-exportar:hover {
+  background: #229954;
+  transform: translateY(-1px);
 }
 
 /* Tabla */
-.tabla-container {
+.tabla-facturas-container {
   background: white;
+  padding: 20px;
   border-radius: 12px;
-  padding: 25px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   overflow-x: auto;
 }
 
-.facturas-table {
+.tabla-facturas {
   width: 100%;
   border-collapse: collapse;
 }
 
-.facturas-table thead {
-  background: #3498db;
-  color: white;
-}
-
-.facturas-table th {
-  padding: 15px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.facturas-table td {
-  padding: 15px;
-  color: #2c3e50;
-  border-bottom: 1px solid #e0e6ed;
-}
-
-.facturas-table tbody tr:hover {
+.tabla-facturas thead {
   background: #f8f9fa;
 }
 
-.numero-factura {
-  color: #3498db;
+.tabla-facturas th {
+  padding: 15px;
+  text-align: left;
+  font-size: 13px;
   font-weight: 600;
+  color: #2c3e50;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #e0e6ed;
 }
 
-.total-factura {
-  color: #27ae60;
-  font-weight: 700;
+.tabla-facturas tbody tr {
+  border-bottom: 1px solid #e0e6ed;
+  transition: all 0.3s;
+}
+
+.tabla-facturas tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.tabla-facturas td {
+  padding: 15px;
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+.tabla-facturas td input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #667eea;
+}
+
+.badge-archivo {
+  margin-left: 8px;
+  font-size: 14px;
+  cursor: help;
 }
 
 /* Estado */
 .estado-container {
-  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  position: relative;
 }
 
-.estado-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+.badge-estado {
   padding: 6px 12px;
   border-radius: 20px;
-  color: white;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  white-space: nowrap;
+  display: inline-block;
+}
+
+.badge-estado.registrada {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.badge-estado.encamino {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.badge-estado.completada {
+  background: #e8f5e9;
+  color: #2e7d32;
 }
 
 .btn-menu-estado {
-  background: #e0e6ed;
+  background: none;
   border: none;
-  border-radius: 6px;
-  width: 32px;
-  height: 32px;
   font-size: 20px;
   font-weight: bold;
-  color: #5a6c7d;
   cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  color: #7f8c8d;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.3s;
 }
 
 .btn-menu-estado:hover {
-  background: #cbd5e0;
-  transform: scale(1.1);
+  background: #f8f9fa;
+  color: #2c3e50;
 }
 
-.menu-estado-dropdown {
+.menu-estado {
   position: absolute;
-  top: 40px;
+  top: 100%;
   left: 0;
   background: white;
+  border: 2px solid #e0e6ed;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   z-index: 100;
-  min-width: 200px;
-  animation: slideDown 0.3s ease;
+  min-width: 150px;
+  animation: fadeInDown 0.2s;
 }
 
-@keyframes slideDown {
+@keyframes fadeInDown {
   from {
     opacity: 0;
     transform: translateY(-10px);
@@ -324,121 +283,113 @@
   }
 }
 
-.menu-header {
-  padding: 12px 15px;
-  border-bottom: 2px solid #e0e6ed;
-  font-weight: 600;
-  color: #2c3e50;
-  font-size: 13px;
-  text-transform: uppercase;
-}
-
-.menu-item {
+.menu-estado-item {
+  display: block;
   width: 100%;
-  padding: 12px 15px;
-  border: none;
-  background: white;
+  padding: 10px 15px;
   text-align: left;
+  border: none;
+  background: none;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #2c3e50;
-  transition: background 0.2s ease;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s;
 }
 
-.menu-item:hover:not(:disabled) {
+.menu-estado-item:hover {
   background: #f8f9fa;
 }
 
-.menu-item:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.menu-estado-item.registrada {
+  color: #c62828;
 }
 
-.menu-color {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
+.menu-estado-item.encamino {
+  color: #e65100;
+}
+
+.menu-estado-item.completada {
+  color: #2e7d32;
 }
 
 /* Acciones */
-.acciones-buttons {
+.acciones-factura {
   display: flex;
-  gap: 8px;
-  align-items: center;
+  gap: 5px;
 }
 
-.btn-accion {
-  width: 36px;
-  height: 36px;
-  border: 2px solid #e0e6ed;
-  background: white;
-  border-radius: 8px;
-  font-size: 18px;
+.btn-accion-factura {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 16px;
+  transition: all 0.3s;
 }
 
-.btn-accion:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.btn-accion-factura.ver {
+  background: #e3f2fd;
 }
 
-.btn-accion.ver:hover {
-  border-color: #3498db;
-  background: #ebf5fb;
+.btn-accion-factura.ver:hover {
+  background: #2196f3;
+  transform: scale(1.1);
 }
 
-.btn-accion.editar:hover {
-  border-color: #f39c12;
-  background: #fef5e7;
+.btn-accion-factura.editar {
+  background: #fff3e0;
 }
 
-.btn-accion.imprimir:hover {
-  border-color: #9b59b6;
-  background: #f4ecf7;
+.btn-accion-factura.editar:hover {
+  background: #ff9800;
+  transform: scale(1.1);
 }
 
-.btn-accion.eliminar:hover {
-  border-color: #e74c3c;
-  background: #fadbd8;
+.btn-accion-factura.imprimir {
+  background: #f3e5f5;
+}
+
+.btn-accion-factura.imprimir:hover {
+  background: #9c27b0;
+  transform: scale(1.1);
+}
+
+.btn-accion-factura.eliminar {
+  background: #ffebee;
+}
+
+.btn-accion-factura.eliminar:hover {
+  background: #f44336;
+  transform: scale(1.1);
 }
 
 /* Empty State */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 60px 20px;
+.empty-state-facturas {
   text-align: center;
+  padding: 60px 20px;
   color: #95a5a6;
 }
 
-.empty-icon {
-  font-size: 80px;
+.empty-state-facturas .empty-icon {
+  font-size: 64px;
+  display: block;
   margin-bottom: 20px;
   opacity: 0.5;
 }
 
-.empty-state p {
-  margin: 0 0 8px 0;
+.empty-state-facturas p {
+  margin: 10px 0;
   font-size: 18px;
   font-weight: 600;
   color: #7f8c8d;
 }
 
-.empty-hint {
+.empty-state-facturas small {
   font-size: 14px;
   color: #95a5a6;
 }
 
-/* Modal */
+/* Modales */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -447,10 +398,10 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.6);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 1000;
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.3s;
 }
 
 @keyframes fadeIn {
@@ -458,13 +409,14 @@
   to { opacity: 1; }
 }
 
-.modal-content {
+.modal-estado,
+.modal-eliminar,
+.modal-ver {
   background: white;
   border-radius: 16px;
-  width: 90%;
   max-width: 500px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.3s ease;
+  width: 90%;
+  animation: slideUp 0.3s;
 }
 
 @keyframes slideUp {
@@ -480,44 +432,73 @@
 
 .modal-header {
   padding: 25px;
-  border-bottom: 2px solid #f0f3f7;
+  border-bottom: 2px solid #e0e6ed;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.modal-header h2 {
+.modal-header h3 {
   margin: 0;
   color: #2c3e50;
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 20px;
+}
+
+.modal-header-eliminar {
+  padding: 25px;
+  border-bottom: 2px solid #e0e6ed;
+  background: #ffebee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 16px 16px 0 0;
+}
+
+.modal-header-eliminar h3 {
+  margin: 0;
+  color: #c62828;
+  font-size: 20px;
+}
+
+.btn-cerrar {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #7f8c8d;
+  transition: all 0.3s;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.btn-cerrar:hover {
+  background: #f8f9fa;
+  color: #e74c3c;
+  transform: rotate(90deg);
 }
 
 .modal-body {
   padding: 25px;
 }
 
-.modal-body > p {
-  margin: 0 0 20px 0;
-  color: #5a6c7d;
-  font-size: 15px;
-}
-
-/* Modal Cambio Estado */
 .cambio-estado-info {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-  margin: 25px 0;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 20px;
   padding: 20px;
   background: #f8f9fa;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 .estado-actual,
 .estado-nuevo {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  flex: 1;
+  gap: 8px;
+  align-items: center;
 }
 
 .estado-actual span:first-child,
@@ -525,194 +506,268 @@
   font-size: 12px;
   color: #7f8c8d;
   font-weight: 600;
-  text-transform: uppercase;
 }
 
 .flecha-cambio {
-  font-size: 32px;
-  color: #3498db;
+  font-size: 24px;
+  color: #667eea;
+  font-weight: bold;
 }
 
-.factura-info {
+.info-factura-modal {
   background: #f8f9fa;
   padding: 15px;
   border-radius: 8px;
+  margin-bottom: 15px;
 }
 
-.factura-info p {
+.info-factura-modal p {
   margin: 8px 0;
-  color: #2c3e50;
   font-size: 14px;
+  color: #2c3e50;
 }
 
-/* Modal Eliminar */
-.modal-eliminar {
-  max-width: 550px;
-}
-
-.warning-box {
+.alert-importante {
   background: #fff3cd;
-  border: 2px solid #ffc107;
-  border-radius: 8px;
+  border-left: 4px solid #ffc107;
   padding: 15px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  border-radius: 6px;
+  color: #856404;
+  font-size: 14px;
+}
+
+.alert-peligro {
+  background: #ffebee;
+  border-left: 4px solid #f44336;
+  padding: 15px;
+  border-radius: 6px;
+  color: #c62828;
   margin-bottom: 20px;
 }
 
-.warning-icon {
-  font-size: 32px;
+.alert-peligro strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 16px;
 }
 
-.warning-box p {
-  margin: 0;
-  color: #856404;
-  font-weight: 600;
+.alert-peligro p {
+  margin: 5px 0;
+  font-size: 14px;
 }
 
-.factura-eliminar-info {
+.info-factura-eliminar {
   background: #f8f9fa;
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
 }
 
-.factura-eliminar-info p {
+.info-factura-eliminar p {
   margin: 8px 0;
-  color: #2c3e50;
   font-size: 14px;
+  color: #2c3e50;
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
-  color: #5a6c7d;
-  font-size: 14px;
+  display: block;
+  margin-bottom: 8px;
+  color: #2c3e50;
   font-weight: 600;
+  font-size: 14px;
 }
 
 .textarea-motivo {
   width: 100%;
-  padding: 12px;
+  padding: 12px 15px;
   border: 2px solid #e0e6ed;
   border-radius: 8px;
   font-size: 14px;
   font-family: inherit;
   resize: vertical;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
+  box-sizing: border-box;
 }
 
 .textarea-motivo:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.detalles-factura-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.detalle-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.detalle-item label {
+  font-size: 12px;
+  color: #7f8c8d;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.detalle-item span {
+  font-size: 15px;
+  color: #2c3e50;
+}
+
+.detalle-item .monto-total {
+  font-size: 20px;
+  font-weight: bold;
+  color: #667eea;
+}
+
+.link-archivo {
+  color: #2196f3;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.link-archivo:hover {
+  text-decoration: underline;
+}
+
+.nota-productos {
+  background: #e3f2fd;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+}
+
+.nota-productos p {
+  margin: 0;
+  color: #1565c0;
+  font-size: 14px;
 }
 
 .modal-footer {
   padding: 20px 25px;
-  border-top: 2px solid #f0f3f7;
+  border-top: 2px solid #e0e6ed;
   display: flex;
-  gap: 12px;
   justify-content: flex-end;
+  gap: 10px;
 }
 
-.btn-modal-cancelar,
-.btn-modal-confirmar,
-.btn-modal-eliminar {
-  padding: 12px 24px;
+.btn-cancelar,
+.btn-confirmar,
+.btn-eliminar-confirm,
+.btn-primary,
+.btn-secondary {
+  padding: 10px 24px;
   border: none;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
 }
 
-.btn-modal-cancelar {
-  background: #ecf0f1;
-  color: #7f8c8d;
+.btn-cancelar,
+.btn-secondary {
+  background: #e0e6ed;
+  color: #2c3e50;
 }
 
-.btn-modal-cancelar:hover {
-  background: #dce1e3;
+.btn-cancelar:hover,
+.btn-secondary:hover {
+  background: #cbd5e0;
 }
 
-.btn-modal-confirmar {
-  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+.btn-confirmar,
+.btn-primary {
+  background: #27ae60;
   color: white;
-  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
 }
 
-.btn-modal-confirmar:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(46, 204, 113, 0.4);
+.btn-confirmar:hover,
+.btn-primary:hover {
+  background: #229954;
+  transform: translateY(-1px);
 }
 
-.btn-modal-eliminar {
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+.btn-eliminar-confirm {
+  background: #f44336;
   color: white;
-  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
 }
 
-.btn-modal-eliminar:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4);
+.btn-eliminar-confirm:hover {
+  background: #d32f2f;
+  transform: translateY(-1px);
 }
 
 /* Responsive */
 @media (max-width: 1200px) {
-  .filtros-section {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .busqueda-input {
-    max-width: 100%;
+  .estadisticas-facturas {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .facturas-container {
-    padding: 15px;
-  }
-
   .facturas-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
   }
 
-  .facturas-header h1 {
-    font-size: 24px;
+  .btn-nueva-compra {
+    width: 100%;
   }
 
-  .sedes-selector {
+  .estadisticas-facturas {
     grid-template-columns: 1fr;
   }
 
-  .estadisticas-grid {
+  .filtros-principales {
     grid-template-columns: 1fr;
   }
 
-  .filtros-tabs {
-    flex-wrap: wrap;
+  .acciones-seleccionadas {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
   }
 
-  .acciones-buttons {
-    flex-wrap: wrap;
+  .btn-exportar {
+    width: 100%;
+  }
+
+  .tabla-facturas {
+    font-size: 12px;
+  }
+
+  .tabla-facturas th,
+  .tabla-facturas td {
+    padding: 10px;
+  }
+
+  .acciones-factura {
+    flex-direction: column;
+  }
+
+  .detalles-factura-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-estado,
+  .modal-eliminar,
+  .modal-ver {
+    width: 95%;
   }
 
   .cambio-estado-info {
     flex-direction: column;
-  }
-
-  .modal-content {
-    width: 95%;
-    margin: 10px;
   }
 }

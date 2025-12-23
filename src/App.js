@@ -73,8 +73,13 @@ function App() {
               {/* Ruta de Etiquetas */}
               <Route path="/etiquetas" element={<Etiquetas />} /> {/* ← NUEVA RUTA */}
               
-              {/* Ruta de Administración */}
-              <Route path="/administracion" element={<Administracion />} /> {/* ← NUEVA RUTA */}
+              {/* Rutas de Administración con Sub-módulos */}
+              <Route path="/administracion/sedes" element={<Administracion modulo="sedes" />} />
+              <Route path="/administracion/proveedores" element={<Administracion modulo="proveedores" />} />
+              <Route path="/administracion/categorias" element={<Administracion modulo="categorias" />} />
+              <Route path="/administracion/marcas" element={<Administracion modulo="marcas" />} />
+              <Route path="/administracion/usuarios" element={<Administracion modulo="usuarios" />} />
+              <Route path="/administracion" element={<Administracion modulo="sedes" />} /> {/* Default */}
             </Routes>
           </main>
         </div>

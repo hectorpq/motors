@@ -160,12 +160,44 @@ function Sidebar({ isOpen, onClose }) {
             {expandedMenus.administracion && (
               <div className="submenu">
                 <Link 
-                  to="/administracion" 
-                  className={`submenu-item ${isActive('/administracion') ? 'active' : ''}`}
+                  to="/administracion/sedes" 
+                  className={`submenu-item ${isActive('/administracion/sedes') ? 'active' : ''}`}
                   onClick={onClose}
                 >
                   <span className="submenu-icon">•</span>
-                  <span>Panel General</span>
+                  <span>Sedes</span>
+                </Link>
+                <Link 
+                  to="/administracion/proveedores" 
+                  className={`submenu-item ${isActive('/administracion/proveedores') ? 'active' : ''}`}
+                  onClick={onClose}
+                >
+                  <span className="submenu-icon">•</span>
+                  <span>Proveedores</span>
+                </Link>
+                <Link 
+                  to="/administracion/categorias" 
+                  className={`submenu-item ${isActive('/administracion/categorias') ? 'active' : ''}`}
+                  onClick={onClose}
+                >
+                  <span className="submenu-icon">•</span>
+                  <span>Categorías</span>
+                </Link>
+                <Link 
+                  to="/administracion/marcas" 
+                  className={`submenu-item ${isActive('/administracion/marcas') ? 'active' : ''}`}
+                  onClick={onClose}
+                >
+                  <span className="submenu-icon">•</span>
+                  <span>Marcas y Modelos</span>
+                </Link>
+                <Link 
+                  to="/administracion/usuarios" 
+                  className={`submenu-item ${isActive('/administracion/usuarios') ? 'active' : ''}`}
+                  onClick={onClose}
+                >
+                  <span className="submenu-icon">•</span>
+                  <span>Usuarios</span>
                 </Link>
               </div>
             )}

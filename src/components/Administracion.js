@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Administracion.css';
 
 // Componente de Sedes
@@ -1009,9 +1009,361 @@ const Usuarios = () => {
   );
 };
 
+// Componente de Marcas y Modelos
+const MarcasModelos = () => {
+  const [marcas, setMarcas] = useState([
+    { 
+      id: 1, 
+      nombre: 'Toyota', 
+      modelos: [
+        { id: 101, nombre: 'Corolla' },
+        { id: 102, nombre: 'Hilux' },
+        { id: 103, nombre: 'RAV4' }
+      ]
+    },
+    { 
+      id: 2, 
+      nombre: 'Honda', 
+      modelos: [
+        { id: 201, nombre: 'Civic' },
+        { id: 202, nombre: 'CR-V' }
+      ]
+    },
+    { 
+      id: 3, 
+      nombre: 'Nissan', 
+      modelos: [
+        { id: 301, nombre: 'Sentra' },
+        { id: 302, nombre: 'X-Trail' }
+      ]
+    }
+  ]);
+  const [modalMarca, setModalMarca] = useState(false);
+  const [modalModelo, setModalModelo] = useState(false);
+  const [modalEditMarca, setModalEditMarca] = useState(false);
+  const [modalEditModelo, setModalEditModelo] = useState(false);
+  const [marcaSeleccionada, setMarcaSeleccionada] = useState(null);
+  const [modeloSeleccionado, setModeloSeleccionado] = useState(null);
+  const [formMarca, setFormMarca] = useState('');
+  const [formModelo, setFormModelo] = useState('');
+
+  const agregarMarca = () => {
+    if (!formMarca) {
+      alert('Ingresa el nombre de la marca');
+      return;
+    }
+    const nuevaMarca = {
+      id: marcas.length + 1,
+      nombre: formMarca,
+      modelos: []
+    };
+    setMarcas([...marcas, nuevaMarca]);
+    setFormMarca('');
+    setModalMarca(false);
+    alert('Marca creada correctamente');
+  };
+
+  const editarMarca = () => {
+    if (!formMarca) {
+      alert('Ingresa el nombre de la marca');
+      return;
+    }
+    setMarcas(marcas.map(m => 
+      m.id === marcaSeleccionada.id ? { ...m, nombre: formMarca } : m
+    ));
+    setModalEditMarca(false);
+    setFormMarca('');
+    alert('Marca actualizada correctamente');
+  };
+
+  const agregarModelo = () => {
+    if (!formModelo || !marcaSeleccionada) {
+      alert('Selecciona una marca e ingresa el nombre del modelo');
+      return;
+    }
+    setMarcas(marcas.map(marca => {
+      if (marca.id === marcaSeleccionada.id) {
+        return {
+          ...marca,
+          modelos: [...marca.modelos, {
+            id: Date.now(),
+            nombre: formModelo
+          }]
+        };
+      }
+      return marca;
+    }));
+    setFormModelo('');
+    setModalModelo(false);
+    alert('Modelo creado correctamente');
+  };
+
+  const editarModelo = () => {
+    if (!formModelo) {
+      alert('Ingresa el nombre del modelo');
+      return;
+    }
+    setMarcas(marcas.map(marca => {
+      if (marca.id === marcaSeleccionada.id) {
+        return {
+          ...marca,
+          modelos: marca.modelos.map(modelo =>
+            modelo.id === modeloSeleccionado.id 
+              ? { ...modelo, nombre: formModelo }
+              : modelo
+          )
+        };
+      }
+      return marca;
+    }));
+    setModalEditModelo(false);
+    setFormModelo('');
+    alert('Modelo actualizado correctamente');
+  };
+
+  const eliminarMarca = (id) => {
+    const marca = marcas.find(m => m.id === id);
+    if (marca.modelos.length > 0) {
+      alert('No se puede eliminar. Elimina primero los modelos asociados');
+      return;
+    }
+    if (window.confirm(`¿Eliminar la marca "${marca.nombre}"?`)) {
+      setMarcas(marcas.filter(m => m.id !== id));
+      alert('Marca eliminada correctamente');
+    }
+  };
+
+  const eliminarModelo = (marcaId, modeloId) => {
+    if (window.confirm('¿Eliminar este modelo? Verifica que no tenga productos asignados')) {
+      setMarcas(marcas.map(marca => {
+        if (marca.id === marcaId) {
+          return {
+            ...marca,
+            modelos: marca.modelos.filter(modelo => modelo.id !== modeloId)
+          };
+        }
+        return marca;
+      }));
+      alert('Modelo eliminado correctamente');
+    }
+  };
+
+  const abrirEditarMarca = (marca) => {
+    setMarcaSeleccionada(marca);
+    setFormMarca(marca.nombre);
+    setModalEditMarca(true);
+  };
+
+  const abrirEditarModelo = (marca, modelo) => {
+    setMarcaSeleccionada(marca);
+    setModeloSeleccionado(modelo);
+    setFormModelo(modelo.nombre);
+    setModalEditModelo(true);
+  };
+
+  return (
+    <div className="modulo-content">
+      <div className="modulo-header">
+        <h2>🚗 Gestión de Marcas y Modelos</h2>
+        <button className="btn-primary" onClick={() => setModalMarca(true)}>
+          ➕ Nueva Marca
+        </button>
+      </div>
+
+      <div className="marcas-tree">
+        {marcas.map(marca => (
+          <div key={marca.id} className="marca-item">
+            <div className="marca-header">
+              <h3>🚗 {marca.nombre}</h3>
+              <div className="marca-acciones">
+                <button 
+                  className="btn-accion agregar"
+                  onClick={() => {
+                    setMarcaSeleccionada(marca);
+                    setModalModelo(true);
+                  }}
+                >
+                  ➕ Modelo
+                </button>
+                <button 
+                  className="btn-accion editar"
+                  onClick={() => abrirEditarMarca(marca)}
+                >
+                  ✏️
+                </button>
+                <button 
+                  className="btn-accion eliminar"
+                  onClick={() => eliminarMarca(marca.id)}
+                >
+                  🗑️
+                </button>
+              </div>
+            </div>
+            <div className="modelos-list">
+              {marca.modelos.map(modelo => (
+                <div key={modelo.id} className="modelo-item">
+                  <span>🚘 {modelo.nombre}</span>
+                  <div className="modelo-acciones">
+                    <button 
+                      className="btn-accion-mini editar"
+                      onClick={() => abrirEditarModelo(marca, modelo)}
+                      title="Editar modelo"
+                    >
+                      ✏️
+                    </button>
+                    <button 
+                      className="btn-accion-mini eliminar"
+                      onClick={() => eliminarModelo(marca.id, modelo.id)}
+                      title="Eliminar modelo"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {marca.modelos.length === 0 && (
+                <p className="empty-message">No hay modelos registrados</p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Modal Nueva Marca */}
+      {modalMarca && (
+        <div className="modal-overlay" onClick={() => setModalMarca(false)}>
+          <div className="modal-admin" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Nueva Marca de Automóvil</h3>
+              <button className="btn-cerrar" onClick={() => setModalMarca(false)}>✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Nombre de la Marca *</label>
+                <input
+                  type="text"
+                  value={formMarca}
+                  onChange={e => setFormMarca(e.target.value)}
+                  placeholder="Ej: Toyota, Honda, Nissan"
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setModalMarca(false)}>
+                Cancelar
+              </button>
+              <button className="btn-primary" onClick={agregarMarca}>
+                Crear Marca
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Editar Marca */}
+      {modalEditMarca && (
+        <div className="modal-overlay" onClick={() => setModalEditMarca(false)}>
+          <div className="modal-admin" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Editar Marca</h3>
+              <button className="btn-cerrar" onClick={() => setModalEditMarca(false)}>✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Nombre de la Marca *</label>
+                <input
+                  type="text"
+                  value={formMarca}
+                  onChange={e => setFormMarca(e.target.value)}
+                  placeholder="Ej: Toyota, Honda, Nissan"
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setModalEditMarca(false)}>
+                Cancelar
+              </button>
+              <button className="btn-primary" onClick={editarMarca}>
+                Actualizar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Nuevo Modelo */}
+      {modalModelo && (
+        <div className="modal-overlay" onClick={() => setModalModelo(false)}>
+          <div className="modal-admin" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Nuevo Modelo - {marcaSeleccionada?.nombre}</h3>
+              <button className="btn-cerrar" onClick={() => setModalModelo(false)}>✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Nombre del Modelo *</label>
+                <input
+                  type="text"
+                  value={formModelo}
+                  onChange={e => setFormModelo(e.target.value)}
+                  placeholder="Ej: Corolla, Civic, Sentra"
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setModalModelo(false)}>
+                Cancelar
+              </button>
+              <button className="btn-primary" onClick={agregarModelo}>
+                Crear Modelo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Editar Modelo */}
+      {modalEditModelo && (
+        <div className="modal-overlay" onClick={() => setModalEditModelo(false)}>
+          <div className="modal-admin" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Editar Modelo - {marcaSeleccionada?.nombre}</h3>
+              <button className="btn-cerrar" onClick={() => setModalEditModelo(false)}>✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Nombre del Modelo *</label>
+                <input
+                  type="text"
+                  value={formModelo}
+                  onChange={e => setFormModelo(e.target.value)}
+                  placeholder="Ej: Corolla, Civic, Sentra"
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setModalEditModelo(false)}>
+                Cancelar
+              </button>
+              <button className="btn-primary" onClick={editarModelo}>
+                Actualizar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Componente Principal de Administración
-function Administracion() {
-  const [moduloActivo, setModuloActivo] = useState('sedes');
+function Administracion({ modulo = 'sedes' }) {
+  const [moduloActivo, setModuloActivo] = useState(modulo);
+
+  // Actualizar cuando cambia el prop
+  useEffect(() => {
+    setModuloActivo(modulo);
+  }, [modulo]);
 
   const modulos = [
     { id: 'sedes', nombre: 'Sedes', icono: '🏢' },
@@ -1049,13 +1401,8 @@ function Administracion() {
           {moduloActivo === 'sedes' && <Sedes />}
           {moduloActivo === 'proveedores' && <Proveedores />}
           {moduloActivo === 'categorias' && <Categorias />}
+          {moduloActivo === 'marcas' && <MarcasModelos />}
           {moduloActivo === 'usuarios' && <Usuarios />}
-          {moduloActivo === 'marcas' && (
-            <div className="modulo-content">
-              <h2>🚗 Marcas y Modelos</h2>
-              <p>Próximamente...</p>
-            </div>
-          )}
         </div>
       </div>
     </div>
