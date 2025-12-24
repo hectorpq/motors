@@ -1,305 +1,285 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './ComprasRegistro.css';
 
-const ComprasRegistro = () => {
+function ComprasRegistro() {
   const [sedeSeleccionada, setSedeSeleccionada] = useState('todas');
-  const [proveedor, setProveedor] = useState('');
+  const [proveedorSeleccionado, setProveedorSeleccionado] = useState('');
   const [numeroFactura, setNumeroFactura] = useState('');
   const [fechaCompra, setFechaCompra] = useState(new Date().toISOString().split('T')[0]);
+  const [archivoFactura, setArchivoFactura] = useState(null);
   const [productos, setProductos] = useState([]);
-  const [productosDisponibles, setProductosDisponibles] = useState([]);
+  const [productosCompra, setProductosCompra] = useState([]);
   const [busqueda, setBusqueda] = useState('');
-  const [proveedores, setProveedores] = useState([]);
-  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
-  const [modalNuevoProveedor, setModalNuevoProveedor] = useState(false);
-  const [nuevoProveedorData, setNuevoProveedorData] = useState({
-    ruc: '',
-    nombre: '',
-    razonSocial: '',
-    direccion: '',
-    telefono: '',
-    email: '',
-    contacto: ''
+  const [modalConfirmacion, setModalConfirmacion] = useState(false);
+  const [modalProveedor, setModalProveedor] = useState(false);
+  const [modalProducto, setModalProducto] = useState(false);
+  const [modalImportarLote, setModalImportarLote] = useState(false);
+  const fileInputRef = useRef(null);
+  const excelInputRef = useRef(null);
+
+  const [proveedores, setProveedores] = useState([
+    { id: 1, ruc: '20987654321', nombre: 'Repuestos Honda Perú SAC', telefono: '987654321', email: 'ventas@honda.pe' },
+    { id: 2, ruc: '20123456789', nombre: 'Toyota Parts SAC', telefono: '912345678', email: 'contacto@toyota.pe' }
+  ]);
+
+  const [formProveedor, setFormProveedor] = useState({
+    ruc: '', nombre: '', telefono: '', email: ''
+  });
+
+  const [formProducto, setFormProducto] = useState({
+    codigo: '', nombre: '', categoria: 'Motor', subcategoria: 'Aceites',
+    marca: 'Toyota', modelo: 'Corolla', precioCompra: '', precioVenta: '',
+    stockMinimo: 5, ubicacion: ''
   });
 
   const sedes = [
-    { id: 'todas', nombre: 'Todas las Sedes', icono: '🌐' },
-    { id: 'deybimotors', nombre: 'Deybimotors', icono: '🏢' },
-    { id: 'deybiparts', nombre: 'Deybi Parts', icono: '🔧' },
-    { id: 'deybiauto', nombre: 'Deybi Auto', icono: '🚗' }
+    { id: 'todas', nombre: '🌐 Todas las Sedes', icono: '🌐' },
+    { id: 'deybimotors', nombre: '🏢 Deybimotors', icono: '🏢' },
+    { id: 'deybiparts', nombre: '🔧 Deybi Parts', icono: '🔧' },
+    { id: 'debiauto', nombre: '🚗 Deybi Auto', icono: '🚗' }
   ];
 
+  const categorias = ['Motor', 'Transmisión', 'Frenos', 'Suspensión', 'Eléctrico'];
+  const marcas = ['Toyota', 'Honda', 'Nissan', 'Mazda', 'Hyundai'];
+
   useEffect(() => {
-    cargarProveedores();
-    cargarProductosDisponibles();
+    // Productos de ejemplo
+    const productosEjemplo = [
+      { id: 1, codigo: 'DM-001', nombre: 'Aceite Motor 5W-30', categoria: 'Motor', marca: 'Toyota', precioCompra: 50.00, stock: 25 },
+      { id: 2, codigo: 'DP-015', nombre: 'Filtro de Aceite', categoria: 'Motor', marca: 'Honda', precioCompra: 30.00, stock: 40 },
+      { id: 3, codigo: 'DA-023', nombre: 'Pastillas de Freno', categoria: 'Frenos', marca: 'Nissan', precioCompra: 120.00, stock: 15 }
+    ];
+    setProductos(productosEjemplo);
   }, []);
 
-  const cargarProveedores = async () => {
-    try {
-      // Reemplazar con tu API
-      const response = await fetch('/api/proveedores');
-      const data = await response.json();
-      setProveedores(data);
-    } catch (error) {
-      console.error('Error al cargar proveedores:', error);
-      // Datos de ejemplo
-      setProveedores([
-        { id: 1, ruc: '20987654321', nombre: 'Repuestos Honda Perú' },
-        { id: 2, ruc: '20123456789', nombre: 'Distribuidora Automotriz SAC' },
-        { id: 3, ruc: '20456789123', nombre: 'Toyota Parts Distribution' }
-      ]);
+  const handleArchivoFactura = (e) => {
+    const archivo = e.target.files[0];
+    if (archivo) {
+      if (archivo.size > 5 * 1024 * 1024) {
+        alert('El archivo no debe superar los 5MB');
+        return;
+      }
+      setArchivoFactura(archivo);
     }
   };
 
-  const cargarProductosDisponibles = async () => {
-    try {
-      const response = await fetch('/api/productos');
-      const data = await response.json();
-      setProductosDisponibles(data);
-    } catch (error) {
-      console.error('Error al cargar productos:', error);
-      // Datos de ejemplo
-      setProductosDisponibles([
-        {
-          codigo: 'DM-001',
-          nombre: 'Pastillas de Freno Delanteras',
-          marca: 'Toyota',
-          modelo: 'Corolla',
-          precioCompra: 100.00,
-          stock: 45
-        },
-        {
-          codigo: 'DM-002',
-          nombre: 'Filtro de Aceite',
-          marca: 'Honda',
-          modelo: 'Civic',
-          precioCompra: 30.00,
-          stock: 78
-        },
-        {
-          codigo: 'DM-003',
-          nombre: 'Bujías NGK',
-          marca: 'Universal',
-          modelo: 'Varios',
-          precioCompra: 12.00,
-          stock: 120
-        },
-        {
-          codigo: 'DM-004',
-          nombre: 'Amortiguador Delantero',
-          marca: 'Nissan',
-          modelo: 'Sentra',
-          precioCompra: 250.00,
-          stock: 12
-        },
-        {
-          codigo: 'DM-005',
-          nombre: 'Batería 12V 45Ah',
-          marca: 'Bosch',
-          modelo: 'Universal',
-          precioCompra: 300.00,
-          stock: 23
-        }
-      ]);
+  const agregarProveedor = () => {
+    if (!formProveedor.ruc || !formProveedor.nombre) {
+      alert('Completa los campos obligatorios (RUC y Nombre)');
+      return;
     }
+
+    const nuevoProveedor = {
+      id: proveedores.length + 1,
+      ...formProveedor
+    };
+
+    setProveedores([...proveedores, nuevoProveedor]);
+    setProveedorSeleccionado(nuevoProveedor.id.toString());
+    setModalProveedor(false);
+    setFormProveedor({ ruc: '', nombre: '', telefono: '', email: '' });
+    alert('Proveedor registrado y seleccionado correctamente');
   };
 
-  const productosFiltrados = productosDisponibles.filter(p => 
-    p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-    p.codigo.toLowerCase().includes(busqueda.toLowerCase()) ||
-    p.marca.toLowerCase().includes(busqueda.toLowerCase())
-  );
+  const agregarProducto = () => {
+    if (!formProducto.codigo || !formProducto.nombre || !formProducto.precioCompra || !formProducto.precioVenta) {
+      alert('Completa todos los campos obligatorios');
+      return;
+    }
 
-  const agregarProducto = (producto) => {
-    const existe = productos.find(p => p.codigo === producto.codigo);
+    const nuevoProducto = {
+      id: productos.length + 1,
+      ...formProducto,
+      precioCompra: parseFloat(formProducto.precioCompra),
+      precioVenta: parseFloat(formProducto.precioVenta),
+      stock: 0
+    };
+
+    setProductos([...productos, nuevoProducto]);
+    
+    // Agregar automáticamente a la compra
+    setProductosCompra([...productosCompra, {
+      ...nuevoProducto,
+      cantidad: 1,
+      subtotal: parseFloat(formProducto.precioCompra)
+    }]);
+
+    setModalProducto(false);
+    setFormProducto({
+      codigo: '', nombre: '', categoria: 'Motor', subcategoria: 'Aceites',
+      marca: 'Toyota', modelo: 'Corolla', precioCompra: '', precioVenta: '',
+      stockMinimo: 5, ubicacion: ''
+    });
+    alert('Producto creado y añadido a la compra');
+  };
+
+  const agregarProductoCompra = (producto) => {
+    const existe = productosCompra.find(p => p.id === producto.id);
     if (existe) {
-      setProductos(productos.map(p => 
-        p.codigo === producto.codigo 
-          ? { ...p, cantidad: p.cantidad + 1 }
-          : p
-      ));
-    } else {
-      setProductos([...productos, { ...producto, cantidad: 1 }]);
+      alert('Este producto ya está en la lista');
+      return;
     }
+
+    setProductosCompra([...productosCompra, {
+      ...producto,
+      cantidad: 1,
+      subtotal: producto.precioCompra
+    }]);
   };
 
-  const actualizarCantidad = (codigo, cantidad) => {
-    if (cantidad <= 0) {
-      eliminarProducto(codigo);
-    } else {
-      setProductos(productos.map(p => 
-        p.codigo === codigo ? { ...p, cantidad: parseInt(cantidad) } : p
-      ));
-    }
-  };
-
-  const actualizarPrecioCompra = (codigo, precio) => {
-    setProductos(productos.map(p => 
-      p.codigo === codigo ? { ...p, precioCompra: parseFloat(precio) || 0 } : p
+  const actualizarCantidad = (id, cantidad) => {
+    const cant = parseInt(cantidad) || 0;
+    setProductosCompra(productosCompra.map(p => 
+      p.id === id 
+        ? { ...p, cantidad: cant, subtotal: cant * p.precioCompra }
+        : p
     ));
   };
 
-  const eliminarProducto = (codigo) => {
-    setProductos(productos.filter(p => p.codigo !== codigo));
+  const actualizarPrecio = (id, precio) => {
+    const prec = parseFloat(precio) || 0;
+    setProductosCompra(productosCompra.map(p => 
+      p.id === id 
+        ? { ...p, precioCompra: prec, subtotal: p.cantidad * prec }
+        : p
+    ));
   };
 
-  const calcularTotal = () => {
-    return productos.reduce((sum, p) => sum + (p.cantidad * p.precioCompra), 0);
+  const eliminarProductoCompra = (id) => {
+    setProductosCompra(productosCompra.filter(p => p.id !== id));
   };
 
-  const handleRegistrarCompra = () => {
-    if (!proveedor || !numeroFactura || productos.length === 0) {
-      alert('Por favor complete todos los campos y agregue al menos un producto');
+  const handleImportarExcel = (e) => {
+    const archivo = e.target.files[0];
+    if (!archivo) return;
+
+    // Simulación de importación de Excel
+    alert('Importando productos desde Excel...\n\nFormato esperado:\nCódigo | Nombre | Categoría | Marca | Precio Compra | Cantidad');
+    
+    // Aquí iría la lógica real de importación con bibliotecas como xlsx o papaparse
+    // Por ahora, agregamos productos de ejemplo
+    const productosImportados = [
+      { id: Date.now() + 1, codigo: 'IMP-001', nombre: 'Producto Importado 1', categoria: 'Motor', marca: 'Toyota', precioCompra: 100, cantidad: 10 },
+      { id: Date.now() + 2, codigo: 'IMP-002', nombre: 'Producto Importado 2', categoria: 'Frenos', marca: 'Honda', precioCompra: 150, cantidad: 5 }
+    ];
+
+    const nuevosProductos = productosImportados.map(p => ({
+      ...p,
+      subtotal: p.cantidad * p.precioCompra
+    }));
+
+    setProductosCompra([...productosCompra, ...nuevosProductos]);
+    setModalImportarLote(false);
+    alert(`${productosImportados.length} productos importados correctamente`);
+  };
+
+  const exportarPlantillaExcel = () => {
+    // Aquí iría la lógica para generar un Excel vacío con el formato correcto
+    alert('Descargando plantilla Excel...\n\nColumnas:\n- Código\n- Nombre\n- Categoría\n- Marca\n- Precio Compra\n- Cantidad');
+  };
+
+  const registrarCompra = () => {
+    if (!proveedorSeleccionado) {
+      alert('Selecciona un proveedor');
       return;
     }
-    setMostrarConfirmacion(true);
+    if (!numeroFactura) {
+      alert('Ingresa el número de factura');
+      return;
+    }
+    if (productosCompra.length === 0) {
+      alert('Agrega al menos un producto');
+      return;
+    }
+    if (sedeSeleccionada === 'todas') {
+      alert('Selecciona una sede específica');
+      return;
+    }
+
+    setModalConfirmacion(true);
   };
 
-  const confirmarRegistro = async () => {
-    try {
-      const compra = {
-        sede: sedeSeleccionada,
-        proveedor,
-        numeroFactura,
-        fechaCompra,
-        productos,
-        total: calcularTotal()
-      };
+  const confirmarRegistro = () => {
+    const compra = {
+      id: Date.now(),
+      proveedor: proveedores.find(p => p.id === parseInt(proveedorSeleccionado)),
+      sede: sedeSeleccionada,
+      numeroFactura,
+      fechaCompra,
+      archivoFactura: archivoFactura?.name || null,
+      productos: productosCompra,
+      total: calcularTotal(),
+      estado: 'Registrada'
+    };
 
-      const response = await fetch('/api/compras/registrar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(compra)
-      });
-
-      if (response.ok) {
-        alert('✅ ¡Compra registrada exitosamente!');
-        limpiarFormulario();
-        setMostrarConfirmacion(false);
-      } else {
-        alert('❌ Error al registrar la compra');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('❌ Error al registrar la compra');
-    }
+    console.log('Compra registrada:', compra);
+    alert('✅ Compra registrada correctamente\n\nNota: El stock NO se actualiza hasta que la compra esté "Completada"');
+    
+    // Limpiar formulario
+    limpiarFormulario();
+    setModalConfirmacion(false);
   };
 
   const limpiarFormulario = () => {
-    setSedeSeleccionada('todas');
-    setProveedor('');
+    setProveedorSeleccionado('');
     setNumeroFactura('');
     setFechaCompra(new Date().toISOString().split('T')[0]);
-    setProductos([]);
-    setBusqueda('');
+    setArchivoFactura(null);
+    setProductosCompra([]);
+    setSedeSeleccionada('todas');
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleInputProveedorChange = (field, value) => {
-    setNuevoProveedorData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  const calcularTotal = () => {
+    return productosCompra.reduce((sum, p) => sum + p.subtotal, 0);
   };
 
-  const validarRUC = (ruc) => {
-    // Validación básica de RUC peruano (11 dígitos)
-    return /^\d{11}$/.test(ruc);
-  };
-
-  const guardarNuevoProveedor = async () => {
-    // Validaciones
-    if (!nuevoProveedorData.ruc || !nuevoProveedorData.nombre) {
-      alert('⚠️ Por favor completa los campos obligatorios (RUC y Nombre)');
-      return;
-    }
-
-    if (!validarRUC(nuevoProveedorData.ruc)) {
-      alert('⚠️ El RUC debe tener 11 dígitos');
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/proveedores', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nuevoProveedorData)
-      });
-
-      if (response.ok) {
-        const proveedorCreado = await response.json();
-        // Actualizar lista de proveedores
-        setProveedores([...proveedores, proveedorCreado]);
-        // Seleccionar el nuevo proveedor
-        setProveedor(proveedorCreado.id);
-        // Cerrar modal y limpiar
-        setModalNuevoProveedor(false);
-        setNuevoProveedorData({
-          ruc: '',
-          nombre: '',
-          razonSocial: '',
-          direccion: '',
-          telefono: '',
-          email: '',
-          contacto: ''
-        });
-        alert('✅ Proveedor registrado exitosamente');
-      } else {
-        const error = await response.json();
-        alert(`❌ Error al registrar proveedor: ${error.message || 'Error desconocido'}`);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('❌ Error al registrar el proveedor');
-    }
-  };
+  const productosFiltrados = productos.filter(p =>
+    p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+    p.codigo.toLowerCase().includes(busqueda.toLowerCase())
+  );
 
   return (
     <div className="compras-registro-container">
       {/* Header */}
-      <div className="compras-header">
-        <div className="header-icon">🛒</div>
-        <div>
-          <h1>Registrar Nueva Compra</h1>
-          <p className="subtitle">Ingreso de inventario a almacén</p>
+      <div className="registro-header">
+        <div className="header-info">
+          <h1>📦 Registro de Compras</h1>
+          <p>Registra nuevas compras de productos</p>
         </div>
+        <button className="btn-limpiar" onClick={limpiarFormulario}>
+          🔄 Limpiar Formulario
+        </button>
       </div>
 
       {/* Selector de Sedes */}
-      <div className="sedes-selector">
+      <div className="sedes-selector-grande">
         {sedes.map(sede => (
-          <div
+          <button
             key={sede.id}
-            className={`sede-card ${sedeSeleccionada === sede.id ? 'active' : ''}`}
+            className={`sede-btn ${sedeSeleccionada === sede.id ? 'activo' : ''}`}
             onClick={() => setSedeSeleccionada(sede.id)}
           >
-            <span className="sede-icon">{sede.icono}</span>
+            <span className="sede-icono">{sede.icono}</span>
             <span className="sede-nombre">{sede.nombre}</span>
-          </div>
+            {sedeSeleccionada === sede.id && <span className="check">✓</span>}
+          </button>
         ))}
       </div>
 
-      <div className="compras-content">
-        {/* Formulario de Compra */}
-        <div className="formulario-section">
-          <div className="datos-compra-card">
-            <div className="card-header">
-              <span className="card-icon">📋</span>
-              <h2>Datos de la Compra</h2>
-            </div>
-            
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Proveedor *</label>
+      {/* Formulario Principal */}
+      <div className="formulario-compra">
+        <div className="form-section">
+          <h3>📋 Información de la Compra</h3>
+          
+          <div className="form-grid-compra">
+            <div className="form-group-compra">
+              <label>Proveedor *</label>
+              <div className="input-con-boton">
                 <select
-                  value={proveedor}
-                  onChange={(e) => {
-                    if (e.target.value === 'nuevo') {
-                      setModalNuevoProveedor(true);
-                    } else {
-                      setProveedor(e.target.value);
-                    }
-                  }}
-                  className="form-control"
+                  value={proveedorSeleccionado}
+                  onChange={(e) => setProveedorSeleccionado(e.target.value)}
+                  className="select-compra"
                 >
                   <option value="">Seleccionar proveedor...</option>
                   {proveedores.map(prov => (
@@ -307,228 +287,234 @@ const ComprasRegistro = () => {
                       {prov.ruc} - {prov.nombre}
                     </option>
                   ))}
-                  <option value="nuevo" className="option-agregar">
-                    ➕ Agregar Nuevo Proveedor
-                  </option>
                 </select>
-              </div>
-
-              <div className="form-group">
-                <label>N° Factura *</label>
-                <input
-                  type="text"
-                  value={numeroFactura}
-                  onChange={(e) => setNumeroFactura(e.target.value)}
-                  placeholder="Ej: F001-00001"
-                  className="form-control"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Fecha de Compra *</label>
-                <input
-                  type="date"
-                  value={fechaCompra}
-                  onChange={(e) => setFechaCompra(e.target.value)}
-                  className="form-control"
-                />
+                <button 
+                  className="btn-agregar-inline"
+                  onClick={() => setModalProveedor(true)}
+                  title="Agregar nuevo proveedor"
+                >
+                  ➕
+                </button>
               </div>
             </div>
-          </div>
 
-          {/* Búsqueda de Productos */}
-          <div className="productos-busqueda-card">
-            <div className="card-header">
-              <span className="card-icon">📦</span>
-              <h2>Productos Disponibles</h2>
-            </div>
-
-            <div className="busqueda-input">
-              <span className="search-icon">🔍</span>
+            <div className="form-group-compra">
+              <label>Número de Factura *</label>
               <input
                 type="text"
-                placeholder="Buscar repuesto por código o nombre..."
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
+                value={numeroFactura}
+                onChange={(e) => setNumeroFactura(e.target.value)}
+                placeholder="F001-00001"
+                className="input-compra"
               />
             </div>
 
-            <div className="productos-grid">
-              {productosFiltrados.map(producto => (
-                <div key={producto.codigo} className="producto-card">
-                  <div className="producto-badge">{producto.codigo}</div>
-                  <h3>{producto.nombre}</h3>
-                  <div className="producto-info">
-                    <span>🏭 {producto.marca}</span>
-                    <span>🚗 {producto.modelo}</span>
-                  </div>
-                  <div className="producto-precio">
-                    S/ {producto.precioCompra.toFixed(2)}
-                  </div>
-                  <button
-                    className="btn-agregar"
-                    onClick={() => agregarProducto(producto)}
-                  >
-                    Agregar
-                  </button>
-                </div>
-              ))}
+            <div className="form-group-compra">
+              <label>Fecha de Compra *</label>
+              <input
+                type="date"
+                value={fechaCompra}
+                onChange={(e) => setFechaCompra(e.target.value)}
+                className="input-compra"
+              />
             </div>
+
+            <div className="form-group-compra">
+              <label>Archivo Factura (PDF, IMG) - Max 5MB</label>
+              <div className="file-upload-area">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleArchivoFactura}
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  className="input-file"
+                  id="archivo-factura"
+                />
+                <label htmlFor="archivo-factura" className="file-label">
+                  {archivoFactura ? (
+                    <>📎 {archivoFactura.name}</>
+                  ) : (
+                    <>📁 Seleccionar archivo</>
+                  )}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Búsqueda y agregado de productos */}
+        <div className="form-section">
+          <div className="section-header">
+            <h3>🔍 Buscar y Agregar Productos</h3>
+            <div className="section-actions">
+              <button 
+                className="btn-secondary-small"
+                onClick={() => setModalImportarLote(true)}
+              >
+                📊 Importar Lote
+              </button>
+              <button 
+                className="btn-primary-small"
+                onClick={() => setModalProducto(true)}
+              >
+                ➕ Nuevo Producto
+              </button>
+            </div>
+          </div>
+
+          <input
+            type="text"
+            placeholder="🔍 Buscar por código o nombre..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="input-busqueda-productos"
+          />
+
+          <div className="productos-disponibles">
+            {productosFiltrados.map(producto => (
+              <div key={producto.id} className="producto-card-compra">
+                <div className="producto-info-compra">
+                  <span className="producto-codigo">{producto.codigo}</span>
+                  <h4>{producto.nombre}</h4>
+                  <div className="producto-detalles">
+                    <span className="badge">{producto.categoria}</span>
+                    <span className="badge">{producto.marca}</span>
+                    <span className="precio">S/ {producto.precioCompra.toFixed(2)}</span>
+                  </div>
+                </div>
+                <button
+                  className="btn-agregar-producto"
+                  onClick={() => agregarProductoCompra(producto)}
+                >
+                  ➕ Agregar
+                </button>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Resumen de Compra */}
-        <div className="resumen-section">
-          <div className="resumen-card">
-            <div className="card-header">
-              <span className="card-icon">📝</span>
-              <h2>Productos en la Compra</h2>
-              <span className="items-count">{productos.length} items</span>
+        <div className="form-section resumen-section">
+          <h3>📝 Resumen de la Compra</h3>
+          
+          {productosCompra.length === 0 ? (
+            <div className="empty-compra">
+              <span className="empty-icon">📦</span>
+              <p>No hay productos agregados</p>
+              <small>Busca y agrega productos a la compra</small>
             </div>
+          ) : (
+            <>
+              <div className="tabla-compra-container">
+                <table className="tabla-compra">
+                  <thead>
+                    <tr>
+                      <th>Código</th>
+                      <th>Producto</th>
+                      <th>Precio Compra</th>
+                      <th>Cantidad</th>
+                      <th>Subtotal</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {productosCompra.map(producto => (
+                      <tr key={producto.id}>
+                        <td>{producto.codigo}</td>
+                        <td>
+                          <strong>{producto.nombre}</strong>
+                          <br />
+                          <small>{producto.categoria} - {producto.marca}</small>
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            value={producto.precioCompra}
+                            onChange={(e) => actualizarPrecio(producto.id, e.target.value)}
+                            className="input-precio-tabla"
+                            step="0.01"
+                            min="0"
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            value={producto.cantidad}
+                            onChange={(e) => actualizarCantidad(producto.id, e.target.value)}
+                            className="input-cantidad-tabla"
+                            min="1"
+                          />
+                        </td>
+                        <td>
+                          <strong>S/ {producto.subtotal.toFixed(2)}</strong>
+                        </td>
+                        <td>
+                          <button
+                            className="btn-eliminar-tabla"
+                            onClick={() => eliminarProductoCompra(producto.id)}
+                          >
+                            🗑️
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-            {productos.length === 0 ? (
-              <div className="empty-state">
-                <span className="empty-icon">📦</span>
-                <p>No hay productos agregados</p>
-                <span className="empty-hint">Busca y agrega productos a tu compra</span>
-              </div>
-            ) : (
-              <div className="productos-lista">
-                {productos.map(producto => (
-                  <div key={producto.codigo} className="producto-item">
-                    <div className="producto-item-header">
-                      <span className="producto-codigo">{producto.codigo}</span>
-                      <button
-                        className="btn-eliminar"
-                        onClick={() => eliminarProducto(producto.codigo)}
-                      >
-                        ❌
-                      </button>
-                    </div>
-                    <h4>{producto.nombre}</h4>
-                    <div className="producto-item-details">
-                      <div className="detail-group">
-                        <label>Cantidad</label>
-                        <input
-                          type="number"
-                          min="1"
-                          value={producto.cantidad}
-                          onChange={(e) => actualizarCantidad(producto.codigo, e.target.value)}
-                          className="input-cantidad"
-                        />
-                      </div>
-                      <div className="detail-group">
-                        <label>Precio Unitario</label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={producto.precioCompra}
-                          onChange={(e) => actualizarPrecioCompra(producto.codigo, e.target.value)}
-                          className="input-precio"
-                        />
-                      </div>
-                      <div className="detail-group">
-                        <label>Subtotal</label>
-                        <div className="subtotal">
-                          S/ {(producto.cantidad * producto.precioCompra).toFixed(2)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="resumen-info">
-              <div className="info-row">
-                <span>Proveedor:</span>
-                <strong>
-                  {proveedor ? proveedores.find(p => p.id == proveedor)?.nombre : '-'}
-                </strong>
-              </div>
-              <div className="info-row">
-                <span>Factura:</span>
-                <strong>{numeroFactura || '-'}</strong>
-              </div>
-              <div className="info-row">
-                <span>Fecha:</span>
-                <strong>{fechaCompra}</strong>
-              </div>
-              <div className="info-row">
-                <span>Productos:</span>
-                <strong>{productos.length}</strong>
-              </div>
-              <div className="info-row">
-                <span>Items Totales:</span>
-                <strong>{productos.reduce((sum, p) => sum + p.cantidad, 0)}</strong>
-              </div>
-            </div>
-
-            <div className="total-section">
-              <span>Total:</span>
-              <span className="total-amount">S/ {calcularTotal().toFixed(2)}</span>
-            </div>
-
-            <div className="acciones-buttons">
-              <button className="btn-cancelar" onClick={limpiarFormulario}>
-                Cancelar
-              </button>
-              <button
-                className="btn-registrar"
-                onClick={handleRegistrarCompra}
-                disabled={productos.length === 0}
-              >
-                ✅ Registrar Compra
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Modal de Confirmación */}
-      {mostrarConfirmacion && (
-        <div className="modal-overlay" onClick={() => setMostrarConfirmacion(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>⚠️ Confirmar Registro de Compra</h2>
-            </div>
-            <div className="modal-body">
-              <p>¿Estás seguro de registrar esta compra?</p>
-              <div className="confirmacion-detalles">
-                <div className="detalle-row">
-                  <span>Sede:</span>
-                  <strong>{sedes.find(s => s.id === sedeSeleccionada)?.nombre}</strong>
+              <div className="total-compra">
+                <div className="total-info">
+                  <span>Total de productos:</span>
+                  <strong>{productosCompra.length}</strong>
                 </div>
-                <div className="detalle-row">
-                  <span>Proveedor:</span>
-                  <strong>{proveedores.find(p => p.id == proveedor)?.nombre}</strong>
+                <div className="total-info">
+                  <span>Total unidades:</span>
+                  <strong>{productosCompra.reduce((sum, p) => sum + p.cantidad, 0)}</strong>
                 </div>
-                <div className="detalle-row">
-                  <span>Factura:</span>
-                  <strong>{numeroFactura}</strong>
-                </div>
-                <div className="detalle-row">
-                  <span>Productos:</span>
-                  <strong>{productos.length} items</strong>
-                </div>
-                <div className="detalle-row total-row">
-                  <span>Total:</span>
+                <div className="total-info total-principal">
+                  <span>TOTAL COMPRA:</span>
                   <strong>S/ {calcularTotal().toFixed(2)}</strong>
                 </div>
               </div>
+
+              <div className="nota-importante">
+                <strong>📌 Nota Importante:</strong> El stock de los productos NO se actualizará hasta que cambies el estado de la compra a "Completada" desde el módulo de Facturas.
+              </div>
+
+              <button className="btn-registrar-compra" onClick={registrarCompra}>
+                💾 Registrar Compra
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Modal Confirmación */}
+      {modalConfirmacion && (
+        <div className="modal-overlay" onClick={() => setModalConfirmacion(false)}>
+          <div className="modal-confirmacion" onClick={e => e.stopPropagation()}>
+            <div className="modal-header-confirm">
+              <h3>⚠️ Confirmar Registro de Compra</h3>
             </div>
-            <div className="modal-footer">
-              <button
-                className="btn-modal-cancelar"
-                onClick={() => setMostrarConfirmacion(false)}
-              >
+            <div className="modal-body-confirm">
+              <div className="resumen-confirmacion">
+                <p><strong>Proveedor:</strong> {proveedores.find(p => p.id === parseInt(proveedorSeleccionado))?.nombre}</p>
+                <p><strong>Factura:</strong> {numeroFactura}</p>
+                <p><strong>Fecha:</strong> {fechaCompra}</p>
+                <p><strong>Sede:</strong> {sedes.find(s => s.id === sedeSeleccionada)?.nombre}</p>
+                <p><strong>Productos:</strong> {productosCompra.length}</p>
+                <p><strong>Total:</strong> S/ {calcularTotal().toFixed(2)}</p>
+                {archivoFactura && <p><strong>Archivo:</strong> {archivoFactura.name}</p>}
+              </div>
+              <div className="alert-info-modal">
+                ℹ️ La compra se registrará con estado "Registrada". El stock no se actualizará hasta cambiar a "Completada".
+              </div>
+            </div>
+            <div className="modal-footer-confirm">
+              <button className="btn-cancelar" onClick={() => setModalConfirmacion(false)}>
                 Cancelar
               </button>
-              <button
-                className="btn-modal-confirmar"
-                onClick={confirmarRegistro}
-              >
+              <button className="btn-confirmar" onClick={confirmarRegistro}>
                 ✅ Confirmar Registro
               </button>
             </div>
@@ -536,122 +522,218 @@ const ComprasRegistro = () => {
         </div>
       )}
 
-      {/* Modal Nuevo Proveedor */}
-      {modalNuevoProveedor && (
-        <div className="modal-overlay" onClick={() => setModalNuevoProveedor(false)}>
-          <div className="modal-content modal-proveedor" onClick={(e) => e.stopPropagation()}>
+      {/* Modal Agregar Proveedor */}
+      {modalProveedor && (
+        <div className="modal-overlay" onClick={() => setModalProveedor(false)}>
+          <div className="modal-admin" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>➕ Agregar Nuevo Proveedor</h2>
+              <h3>➕ Agregar Proveedor</h3>
+              <button className="btn-cerrar" onClick={() => setModalProveedor(false)}>✕</button>
             </div>
             <div className="modal-body">
-              <div className="form-proveedor-grid">
-                <div className="form-group">
-                  <label>RUC *</label>
-                  <input
-                    type="text"
-                    placeholder="Ej: 20123456789"
-                    maxLength="11"
-                    value={nuevoProveedorData.ruc}
-                    onChange={(e) => handleInputProveedorChange('ruc', e.target.value)}
-                    className="form-control"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Nombre Comercial *</label>
-                  <input
-                    type="text"
-                    placeholder="Ej: Repuestos Honda Perú"
-                    value={nuevoProveedorData.nombre}
-                    onChange={(e) => handleInputProveedorChange('nombre', e.target.value)}
-                    className="form-control"
-                  />
-                </div>
-
-                <div className="form-group" style={{gridColumn: '1 / -1'}}>
-                  <label>Razón Social</label>
-                  <input
-                    type="text"
-                    placeholder="Ej: Distribuidora Automotriz SAC"
-                    value={nuevoProveedorData.razonSocial}
-                    onChange={(e) => handleInputProveedorChange('razonSocial', e.target.value)}
-                    className="form-control"
-                  />
-                </div>
-
-                <div className="form-group" style={{gridColumn: '1 / -1'}}>
-                  <label>Dirección</label>
-                  <input
-                    type="text"
-                    placeholder="Ej: Av. Industrial 123, Lima"
-                    value={nuevoProveedorData.direccion}
-                    onChange={(e) => handleInputProveedorChange('direccion', e.target.value)}
-                    className="form-control"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Teléfono</label>
-                  <input
-                    type="text"
-                    placeholder="Ej: 987654321"
-                    value={nuevoProveedorData.telefono}
-                    onChange={(e) => handleInputProveedorChange('telefono', e.target.value)}
-                    className="form-control"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Email</label>
-                  <input
-                    type="email"
-                    placeholder="Ej: ventas@proveedor.com"
-                    value={nuevoProveedorData.email}
-                    onChange={(e) => handleInputProveedorChange('email', e.target.value)}
-                    className="form-control"
-                  />
-                </div>
-
-                <div className="form-group" style={{gridColumn: '1 / -1'}}>
-                  <label>Persona de Contacto</label>
-                  <input
-                    type="text"
-                    placeholder="Ej: Juan Pérez"
-                    value={nuevoProveedorData.contacto}
-                    onChange={(e) => handleInputProveedorChange('contacto', e.target.value)}
-                    className="form-control"
-                  />
-                </div>
+              <div className="form-group">
+                <label>RUC *</label>
+                <input
+                  type="text"
+                  value={formProveedor.ruc}
+                  onChange={e => setFormProveedor({...formProveedor, ruc: e.target.value})}
+                  placeholder="20987654321"
+                  maxLength="11"
+                />
               </div>
-
-              <div className="info-nota">
-                <span className="icono-info">ℹ️</span>
-                <p>Los campos marcados con * son obligatorios</p>
+              <div className="form-group">
+                <label>Razón Social / Nombre *</label>
+                <input
+                  type="text"
+                  value={formProveedor.nombre}
+                  onChange={e => setFormProveedor({...formProveedor, nombre: e.target.value})}
+                  placeholder="Repuestos SAC"
+                />
+              </div>
+              <div className="form-group">
+                <label>Teléfono</label>
+                <input
+                  type="tel"
+                  value={formProveedor.telefono}
+                  onChange={e => setFormProveedor({...formProveedor, telefono: e.target.value})}
+                  placeholder="987654321"
+                />
+              </div>
+              <div className="form-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={formProveedor.email}
+                  onChange={e => setFormProveedor({...formProveedor, email: e.target.value})}
+                  placeholder="contacto@empresa.com"
+                />
               </div>
             </div>
             <div className="modal-footer">
-              <button
-                className="btn-modal-cancelar"
-                onClick={() => {
-                  setModalNuevoProveedor(false);
-                  setNuevoProveedorData({
-                    ruc: '',
-                    nombre: '',
-                    razonSocial: '',
-                    direccion: '',
-                    telefono: '',
-                    email: '',
-                    contacto: ''
-                  });
-                }}
-              >
+              <button className="btn-secondary" onClick={() => setModalProveedor(false)}>
                 Cancelar
               </button>
-              <button
-                className="btn-modal-confirmar"
-                onClick={guardarNuevoProveedor}
-              >
-                ✅ Guardar Proveedor
+              <button className="btn-primary" onClick={agregarProveedor}>
+                Guardar y Seleccionar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Agregar Producto */}
+      {modalProducto && (
+        <div className="modal-overlay" onClick={() => setModalProducto(false)}>
+          <div className="modal-admin modal-large" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>➕ Registrar Nuevo Producto</h3>
+              <button className="btn-cerrar" onClick={() => setModalProducto(false)}>✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Código *</label>
+                  <input
+                    type="text"
+                    value={formProducto.codigo}
+                    onChange={e => setFormProducto({...formProducto, codigo: e.target.value})}
+                    placeholder="DM-001"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Nombre *</label>
+                  <input
+                    type="text"
+                    value={formProducto.nombre}
+                    onChange={e => setFormProducto({...formProducto, nombre: e.target.value})}
+                    placeholder="Aceite Motor 5W-30"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Categoría *</label>
+                  <select
+                    value={formProducto.categoria}
+                    onChange={e => setFormProducto({...formProducto, categoria: e.target.value})}
+                  >
+                    {categorias.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Marca *</label>
+                  <select
+                    value={formProducto.marca}
+                    onChange={e => setFormProducto({...formProducto, marca: e.target.value})}
+                  >
+                    {marcas.map(marca => (
+                      <option key={marca} value={marca}>{marca}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Precio de Compra *</label>
+                  <input
+                    type="number"
+                    value={formProducto.precioCompra}
+                    onChange={e => setFormProducto({...formProducto, precioCompra: e.target.value})}
+                    placeholder="100.00"
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Precio de Venta *</label>
+                  <input
+                    type="number"
+                    value={formProducto.precioVenta}
+                    onChange={e => setFormProducto({...formProducto, precioVenta: e.target.value})}
+                    placeholder="150.00"
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Stock Mínimo</label>
+                  <input
+                    type="number"
+                    value={formProducto.stockMinimo}
+                    onChange={e => setFormProducto({...formProducto, stockMinimo: e.target.value})}
+                    placeholder="5"
+                    min="0"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Ubicación</label>
+                  <input
+                    type="text"
+                    value={formProducto.ubicacion}
+                    onChange={e => setFormProducto({...formProducto, ubicacion: e.target.value})}
+                    placeholder="A-12-3"
+                  />
+                </div>
+              </div>
+              <div className="alert-info">
+                ℹ️ El producto se creará sin stock inicial. El stock se agregará automáticamente cuando esta compra sea completada.
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setModalProducto(false)}>
+                Cancelar
+              </button>
+              <button className="btn-primary" onClick={agregarProducto}>
+                Crear y Agregar a Compra
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Importar Lote */}
+      {modalImportarLote && (
+        <div className="modal-overlay" onClick={() => setModalImportarLote(false)}>
+          <div className="modal-admin" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>📊 Importar Lote de Productos</h3>
+              <button className="btn-cerrar" onClick={() => setModalImportarLote(false)}>✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="import-info">
+                <h4>Instrucciones:</h4>
+                <ol>
+                  <li>Descarga la plantilla Excel con el formato correcto</li>
+                  <li>Completa los datos de los productos (Código, Nombre, Categoría, Marca, Precio, Cantidad)</li>
+                  <li>Sube el archivo completado</li>
+                </ol>
+              </div>
+
+              <button className="btn-download-template" onClick={exportarPlantillaExcel}>
+                📥 Descargar Plantilla Excel
+              </button>
+
+              <div className="divider">O</div>
+
+              <div className="file-upload-area-excel">
+                <input
+                  type="file"
+                  ref={excelInputRef}
+                  onChange={handleImportarExcel}
+                  accept=".xlsx,.xls"
+                  className="input-file"
+                  id="archivo-excel"
+                />
+                <label htmlFor="archivo-excel" className="file-label-excel">
+                  📂 Seleccionar archivo Excel
+                </label>
+              </div>
+
+              <div className="alert-info">
+                ⚠️ Asegúrate de que el archivo tenga el formato correcto para evitar errores en la importación.
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setModalImportarLote(false)}>
+                Cerrar
               </button>
             </div>
           </div>
@@ -659,6 +741,6 @@ const ComprasRegistro = () => {
       )}
     </div>
   );
-};
+}
 
 export default ComprasRegistro;
