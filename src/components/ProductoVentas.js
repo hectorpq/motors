@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import {
+  getProductos,
+  getProductosPorSede,
+  buscarProductos,
+  getSedes,
+  registrarSalidaStock
+} from '../services/api';
 import './ProductoVentas.css';
 
 const ProductoVentas = () => {
   // Estados principales
-  const [sedeSeleccionada, setSedeSeleccionada] = useState('todas');
+  const [sedes, setSedes] = useState([]);
+  const [sedeSeleccionada, setSedeSeleccionada] = useState(null);
   const [productos, setProductos] = useState([]);
   const [carrito, setCarrito] = useState([]);
   const [busqueda, setBusqueda] = useState('');
@@ -11,158 +19,118 @@ const ProductoVentas = () => {
   const [motivoSalida, setMotivoSalida] = useState('VENTA');
   const [observacion, setObservacion] = useState('');
   const [vistaActual, setVistaActual] = useState('tabla'); // 'tabla' o 'tarjetas'
-
-  // Sedes según tu captura
-  const sedes = [
-    { id: 'todas', nombre: 'Todas las Sedes', icono: '🌐', color: '#7c3aed' },
-    { id: 'deybimotors', nombre: 'Deybimotors', icono: '🏢', color: '#3b82f6' },
-    { id: 'deybi-parts', nombre: 'Deybi Parts', icono: '🔧', color: '#f59e0b' },
-    { id: 'deybi-auto', nombre: 'Deybi Auto', icono: '🚗', color: '#10b981' }
-  ];
-
-  // Productos de ejemplo - reemplazar con tu API
-  const productosEjemplo = [
-    {
-      id: 1,
-      codigo: 'DM-001',
-      nombre: 'Pastillas de Freno Delanteras',
-      sede: 'deybimotors',
-      marca_producto: 'Brembo',
-      marca_auto: 'Toyota',
-      modelo: 'Corolla',
-      stock: 45,
-      precio_compra: 85.00,
-      precio_venta: 120.00,
-      estado: 'En Stock'
-    },
-    {
-      id: 2,
-      codigo: 'DP-002',
-      nombre: 'Filtro de Aceite',
-      sede: 'deybi-parts',
-      marca_producto: 'Filtron',
-      marca_auto: 'Honda',
-      modelo: 'Civic',
-      stock: 8,
-      precio_compra: 20.00,
-      precio_venta: 35.00,
-      estado: 'Stock Bajo'
-    },
-    {
-      id: 3,
-      codigo: 'DA-003',
-      nombre: 'Amortiguador Trasero',
-      sede: 'deybi-auto',
-      marca_producto: 'Monroe',
-      marca_auto: 'Nissan',
-      modelo: 'Sentra',
-      stock: 0,
-      precio_compra: 180.00,
-      precio_venta: 280.00,
-      estado: 'Sin Stock'
-    },
-    {
-      id: 4,
-      codigo: 'DM-004',
-      nombre: 'Juego de Cables de Bujía',
-      sede: 'deybimotors',
-      marca_producto: 'Bosch',
-      marca_auto: 'Volkswagen',
-      modelo: 'Gol',
-      stock: 28,
-      precio_compra: 45.00,
-      precio_venta: 75.00,
-      estado: 'En Stock'
-    },
-    {
-      id: 5,
-      codigo: 'DP-005',
-      nombre: 'Batería 12V 60Ah',
-      sede: 'deybi-parts',
-      marca_producto: 'AC Delco',
-      marca_auto: 'Chevrolet',
-      modelo: 'Aveo',
-      stock: 15,
-      precio_compra: 320.00,
-      precio_venta: 450.00,
-      estado: 'En Stock'
-    },
-    {
-      id: 6,
-      codigo: 'DA-006',
-      nombre: 'Bujías NGK Platinum',
-      sede: 'deybi-auto',
-      marca_producto: 'NGK',
-      marca_auto: 'Mazda',
-      modelo: '3',
-      stock: 52,
-      precio_compra: 12.00,
-      precio_venta: 18.00,
-      estado: 'En Stock'
-    },
-    {
-      id: 7,
-      codigo: 'DM-007',
-      nombre: 'Kit de Embrague',
-      sede: 'deybimotors',
-      marca_producto: 'Valeo',
-      marca_auto: 'Renault',
-      modelo: 'Logan',
-      stock: 6,
-      precio_compra: 450.00,
-      precio_venta: 620.00,
-      estado: 'Stock Bajo'
-    },
-    {
-      id: 8,
-      codigo: 'DP-008',
-      nombre: 'Llanta 185/65R15',
-      sede: 'deybi-parts',
-      marca_producto: 'Michelin',
-      marca_auto: 'Universal',
-      modelo: 'Varios',
-      stock: 24,
-      precio_compra: 280.00,
-      precio_venta: 420.00,
-      estado: 'En Stock'
-    }
-  ];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    // Filtrar productos por sede
-    if (sedeSeleccionada === 'todas') {
-      setProductos(productosEjemplo);
-    } else {
-      setProductos(productosEjemplo.filter(p => p.sede === sedeSeleccionada));
+    cargarDatos();
+  }, []);
+
+  useEffect(() => {
+    if (sedeSeleccionada) {
+      cargarProductosPorSede();
     }
   }, [sedeSeleccionada]);
 
-  // Filtrar productos según búsqueda
-  const productosFiltrados = productos.filter(p =>
-    p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-    p.codigo.toLowerCase().includes(busqueda.toLowerCase()) ||
-    p.marca_producto.toLowerCase().includes(busqueda.toLowerCase()) ||
-    p.marca_auto.toLowerCase().includes(busqueda.toLowerCase()) ||
-    p.modelo.toLowerCase().includes(busqueda.toLowerCase())
-  );
+  const cargarDatos = async () => {
+    try {
+      setLoading(true);
+      setError('');
 
-  // Obtener clase CSS según sede
-  const getSedeClass = (sedeId) => {
-    return `sede-${sedeId}`;
+      // Cargar sedes
+      const sedesResponse = await getSedes();
+      const sedesActivas = sedesResponse.data.filter(s => s.activo);
+      
+      // Agregar opción "Todas las Sedes"
+      setSedes([
+        { id: null, nombre: 'Todas las Sedes', activo: true },
+        ...sedesActivas
+      ]);
+
+      // Seleccionar primera sede por defecto
+      if (sedesActivas.length > 0) {
+        setSedeSeleccionada(sedesActivas[0].id);
+      }
+
+    } catch (error) {
+      console.error('Error al cargar datos:', error);
+      setError('Error al cargar los datos iniciales');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cargarProductosPorSede = async () => {
+    if (!sedeSeleccionada) {
+      // Cargar todos los productos
+      try {
+        setLoading(true);
+        const response = await getProductos();
+        setProductos(response.data);
+      } catch (error) {
+        console.error('Error al cargar productos:', error);
+        setError('Error al cargar productos');
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+      const response = await getProductosPorSede(sedeSeleccionada);
+      setProductos(response.data);
+    } catch (error) {
+      console.error('Error al cargar productos por sede:', error);
+      setError('Error al cargar productos de la sede');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filtrar productos según búsqueda
+  const productosFiltrados = productos.filter(p => {
+    if (!busqueda) return true;
+    
+    const searchLower = busqueda.toLowerCase();
+    return (
+      p.nombre?.toLowerCase().includes(searchLower) ||
+      p.codigo?.toLowerCase().includes(searchLower) ||
+      p.marcaNombre?.toLowerCase().includes(searchLower) ||
+      p.categoriaNombre?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const getSedeIcono = (sedeNombre) => {
+    const iconos = {
+      'Deybimotors': '🏢',
+      'Deybi Parts': '🔧',
+      'Deybi Auto': '🚗'
+    };
+    return iconos[sedeNombre] || '🏢';
+  };
+
+  const getSedeNombre = (sedeId) => {
+    const sede = sedes.find(s => s.id === sedeId);
+    return sede?.nombre || 'N/A';
   };
 
   // Agregar producto al carrito
   const agregarAlCarrito = (producto) => {
-    if (producto.stock === 0) {
-      alert('⚠️ Este producto no tiene stock disponible');
+    // Buscar stock del producto en la sede seleccionada
+    const stockDisponible = producto.stocks?.find(s => s.sedeId === sedeSeleccionada)?.cantidad || 0;
+
+    if (stockDisponible === 0) {
+      alert('⚠️ Este producto no tiene stock disponible en esta sede');
       return;
     }
 
     const existente = carrito.find(item => item.id === producto.id);
     
     if (existente) {
-      if (existente.cantidad >= producto.stock) {
-        alert(`⚠️ Stock insuficiente. Disponible: ${producto.stock}`);
+      if (existente.cantidad >= stockDisponible) {
+        alert(`⚠️ Stock insuficiente. Disponible: ${stockDisponible}`);
         return;
       }
       
@@ -172,17 +140,21 @@ const ProductoVentas = () => {
           : item
       ));
     } else {
-      setCarrito([...carrito, {...producto, cantidad: 1}]);
+      setCarrito([...carrito, {
+        ...producto,
+        cantidad: 1,
+        stockDisponible: stockDisponible
+      }]);
     }
   };
 
   // Actualizar cantidad en carrito
   const actualizarCantidad = (productoId, nuevaCantidad) => {
-    const producto = productos.find(p => p.id === productoId);
+    const item = carrito.find(i => i.id === productoId);
     const num = parseInt(nuevaCantidad) || 0;
     
-    if (num > producto.stock) {
-      alert(`⚠️ Stock insuficiente. Máximo: ${producto.stock}`);
+    if (num > item.stockDisponible) {
+      alert(`⚠️ Stock insuficiente. Máximo: ${item.stockDisponible}`);
       return;
     }
     
@@ -205,7 +177,7 @@ const ProductoVentas = () => {
 
   // Calcular total
   const calcularTotal = () => {
-    return carrito.reduce((sum, item) => sum + (item.precio_venta * item.cantidad), 0);
+    return carrito.reduce((sum, item) => sum + (item.precioVenta * item.cantidad), 0);
   };
 
   // Abrir modal de confirmación
@@ -219,30 +191,27 @@ const ProductoVentas = () => {
 
   // Confirmar y registrar venta
   const confirmarRegistroVenta = async () => {
-    const ventaData = {
-      items: carrito,
-      motivo: motivoSalida,
-      observacion: observacion.trim(),
-      total: calcularTotal(),
-      fecha: new Date().toISOString(),
-      usuario: 'Admin' // Obtener del contexto
-    };
+    if (!observacion.trim() && motivoSalida === 'OTRO') {
+      alert('❌ Debes especificar una observación cuando el motivo es "Otro"');
+      return;
+    }
 
     try {
-      // TODO: Reemplazar con tu endpoint de API
-      console.log('📦 Registrando venta:', ventaData);
-      
-      // Ejemplo de llamada a tu API:
-      // const response = await fetch('/api/ventas', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(ventaData)
-      // });
-      // const result = await response.json();
-      
-      // Simular registro exitoso
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
+      setLoading(true);
+
+      // Preparar datos para la API
+      const request = {
+        sedeId: sedeSeleccionada,
+        items: carrito.map(item => ({
+          productoId: item.id,
+          cantidad: item.cantidad
+        })),
+        motivo: motivoSalida,
+        observacion: observacion.trim() || null
+      };
+
+      await registrarSalidaStock(request);
+
       alert('✅ Venta registrada exitosamente\n' + 
             `💰 Total: S/ ${calcularTotal().toFixed(2)}\n` +
             `📋 Productos: ${carrito.length}`);
@@ -253,14 +222,40 @@ const ProductoVentas = () => {
       setMotivoSalida('VENTA');
       setMostrarModalConfirmacion(false);
       
+      // Recargar productos para actualizar stock
+      cargarProductosPorSede();
+      
     } catch (error) {
-      alert('❌ Error al registrar la venta');
-      console.error(error);
+      console.error('Error al registrar venta:', error);
+      alert('❌ Error al registrar la venta: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setLoading(false);
     }
   };
 
+  const exportarDatos = () => {
+    alert('📊 Función de exportación en desarrollo');
+  };
+
+  if (loading && productos.length === 0) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+        <div className="spinner"></div>
+        <p style={{ fontSize: '16px', color: '#6b7280', marginTop: '16px' }}>Cargando productos...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="ventas-container">
+      {/* Error Banner */}
+      {error && (
+        <div className="error-banner">
+          <span>⚠️ {error}</span>
+          <button onClick={() => setError('')}>✕</button>
+        </div>
+      )}
+
       {/* Header con título */}
       <div className="page-header">
         <h1 className="page-title">Productos - Ventas</h1>
@@ -277,11 +272,13 @@ const ProductoVentas = () => {
       <div className="sedes-container">
         {sedes.map(sede => (
           <button
-            key={sede.id}
+            key={sede.id || 'todas'}
             onClick={() => setSedeSeleccionada(sede.id)}
-            className={`sede-card ${sedeSeleccionada === sede.id ? 'active' : ''} ${getSedeClass(sede.id)}`}
+            className={`sede-card ${sedeSeleccionada === sede.id ? 'active' : ''}`}
           >
-            <span className="sede-icono">{sede.icono}</span>
+            <span className="sede-icono">
+              {sede.id === null ? '🌐' : getSedeIcono(sede.nombre)}
+            </span>
             <span className="sede-nombre">{sede.nombre}</span>
           </button>
         ))}
@@ -293,13 +290,12 @@ const ProductoVentas = () => {
           <span className="search-icon">🔍</span>
           <input
             type="text"
-            placeholder="Buscar por cualquier campo: código, marca, modelo, descripción..."
+            placeholder="Buscar por código, nombre, marca, categoría..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             className="search-input"
           />
         </div>
-        <button className="btn-add" title="Agregar producto">➕</button>
         <div className="vista-toggle">
           <button 
             className={`btn-vista ${vistaActual === 'tabla' ? 'active' : ''}`}
@@ -316,7 +312,7 @@ const ProductoVentas = () => {
             ⊞
           </button>
         </div>
-        <button className="btn-export" title="Exportar datos">📊</button>
+        <button className="btn-export" onClick={exportarDatos} title="Exportar datos">📊</button>
       </div>
 
       <div className="main-content">
@@ -328,10 +324,10 @@ const ProductoVentas = () => {
               <table className="productos-table">
                 <thead>
                   <tr>
+                    <th>Código</th>
                     <th>Producto</th>
-                    <th>Marca Auto</th>
-                    <th>Modelo</th>
-                    <th>Descripción</th>
+                    <th>Marca</th>
+                    <th>Categoría</th>
                     <th>Stock</th>
                     <th>P.C.</th>
                     <th>P.V.</th>
@@ -340,117 +336,124 @@ const ProductoVentas = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {productosFiltrados.map(producto => (
-                    <tr key={producto.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span className={`sede-badge ${getSedeClass(producto.sede)}`}>
-                            {sedes.find(s => s.id === producto.sede)?.icono}
+                  {productosFiltrados.map(producto => {
+                    const stock = producto.stocks?.find(s => s.sedeId === sedeSeleccionada)?.cantidad || 0;
+                    const stockMinimo = producto.stocks?.find(s => s.sedeId === sedeSeleccionada)?.stockMinimo || 10;
+                    
+                    return (
+                      <tr key={producto.id}>
+                        <td>
+                          <span className="codigo-badge">{producto.codigo}</span>
+                        </td>
+                        <td>{producto.nombre}</td>
+                        <td>{producto.marcaNombre || 'N/A'}</td>
+                        <td>{producto.categoriaNombre || 'N/A'}</td>
+                        <td>
+                          <span className={`stock-badge ${
+                            stock === 0 ? 'sin-stock' : 
+                            stock <= stockMinimo ? 'stock-bajo' : 
+                            'stock-normal'
+                          }`}>
+                            {stock}
                           </span>
-                          <span>{producto.codigo}</span>
-                        </div>
-                      </td>
-                      <td>{producto.marca_auto}</td>
-                      <td>{producto.modelo}</td>
-                      <td>{producto.nombre}</td>
-                      <td>
-                        <span className={`stock-badge ${
-                          producto.stock === 0 ? 'sin-stock' : 
-                          producto.stock < 10 ? 'stock-bajo' : 
-                          'stock-normal'
-                        }`}>
-                          {producto.stock}
-                        </span>
-                      </td>
-                      <td>S/ {producto.precio_compra.toFixed(2)}</td>
-                      <td>S/ {producto.precio_venta.toFixed(2)}</td>
-                      <td>
-                        <span className={`estado-badge ${
-                          producto.estado === 'En Stock' ? 'en-stock' : 
-                          producto.estado === 'Stock Bajo' ? 'stock-bajo' : 
-                          'sin-stock'
-                        }`}>
-                          {producto.estado}
-                        </span>
-                      </td>
-                      <td>
-                        <button 
-                          onClick={() => agregarAlCarrito(producto)}
-                          className="btn-agregar-tabla"
-                          disabled={producto.stock === 0}
-                        >
-                          🛒 Agregar
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td>S/ {producto.precioCompra?.toFixed(2) || '0.00'}</td>
+                        <td>S/ {producto.precioVenta?.toFixed(2) || '0.00'}</td>
+                        <td>
+                          <span className={`estado-badge ${
+                            stock === 0 ? 'sin-stock' : 
+                            stock <= stockMinimo ? 'stock-bajo' : 
+                            'en-stock'
+                          }`}>
+                            {stock === 0 ? 'Sin Stock' : stock <= stockMinimo ? 'Stock Bajo' : 'En Stock'}
+                          </span>
+                        </td>
+                        <td>
+                          <button 
+                            onClick={() => agregarAlCarrito(producto)}
+                            className="btn-agregar-tabla"
+                            disabled={stock === 0}
+                          >
+                            🛒 Agregar
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           ) : (
             // VISTA DE TARJETAS
             <div className="productos-grid">
-              {productosFiltrados.map(producto => (
-                <div key={producto.id} className="producto-card">
-                  <div className="producto-card-header">
-                    <span className={`sede-badge-card ${getSedeClass(producto.sede)}`}>
-                      {sedes.find(s => s.id === producto.sede)?.icono}
-                    </span>
-                    <span className={`stock-badge-card ${
-                      producto.stock === 0 ? 'sin-stock' : 
-                      producto.stock < 10 ? 'stock-bajo' : 
-                      'stock-normal'
-                    }`}>
-                      Stock: {producto.stock}
-                    </span>
-                  </div>
-                  
-                  <div className="producto-card-body">
-                    <div className="producto-icon">📦</div>
-                    <h4 className="producto-card-titulo">{producto.nombre}</h4>
-                    <p className="producto-card-codigo">{producto.codigo}</p>
-                    <div className="producto-card-info">
-                      <span className="info-item">
-                        <strong>Marca:</strong> {producto.marca_auto}
-                      </span>
-                      <span className="info-item">
-                        <strong>Modelo:</strong> {producto.modelo}
-                      </span>
-                      <span className="info-item">
-                        <strong>Producto:</strong> {producto.marca_producto}
+              {productosFiltrados.map(producto => {
+                const stock = producto.stocks?.find(s => s.sedeId === sedeSeleccionada)?.cantidad || 0;
+                const stockMinimo = producto.stocks?.find(s => s.sedeId === sedeSeleccionada)?.stockMinimo || 10;
+                
+                return (
+                  <div key={producto.id} className="producto-card">
+                    <div className="producto-card-header">
+                      <span className={`stock-badge-card ${
+                        stock === 0 ? 'sin-stock' : 
+                        stock <= stockMinimo ? 'stock-bajo' : 
+                        'stock-normal'
+                      }`}>
+                        Stock: {stock}
                       </span>
                     </div>
                     
-                    <div className="producto-card-precios">
-                      <div className="precio-item">
-                        <span className="precio-label">P.C.</span>
-                        <span className="precio-valor">S/ {producto.precio_compra.toFixed(2)}</span>
+                    <div className="producto-card-body">
+                      <div className="producto-icon">📦</div>
+                      <h4 className="producto-card-titulo">{producto.nombre}</h4>
+                      <p className="producto-card-codigo">{producto.codigo}</p>
+                      <div className="producto-card-info">
+                        <span className="info-item">
+                          <strong>Marca:</strong> {producto.marcaNombre || 'N/A'}
+                        </span>
+                        <span className="info-item">
+                          <strong>Categoría:</strong> {producto.categoriaNombre || 'N/A'}
+                        </span>
                       </div>
-                      <div className="precio-item precio-venta">
-                        <span className="precio-label">P.V.</span>
-                        <span className="precio-valor">S/ {producto.precio_venta.toFixed(2)}</span>
+                      
+                      <div className="producto-card-precios">
+                        <div className="precio-item">
+                          <span className="precio-label">P.C.</span>
+                          <span className="precio-valor">S/ {producto.precioCompra?.toFixed(2) || '0.00'}</span>
+                        </div>
+                        <div className="precio-item precio-venta">
+                          <span className="precio-label">P.V.</span>
+                          <span className="precio-valor">S/ {producto.precioVenta?.toFixed(2) || '0.00'}</span>
+                        </div>
                       </div>
                     </div>
+                    
+                    <div className="producto-card-footer">
+                      <span className={`estado-badge ${
+                        stock === 0 ? 'sin-stock' : 
+                        stock <= stockMinimo ? 'stock-bajo' : 
+                        'en-stock'
+                      }`}>
+                        {stock === 0 ? 'Sin Stock' : stock <= stockMinimo ? 'Stock Bajo' : 'En Stock'}
+                      </span>
+                      <button 
+                        onClick={() => agregarAlCarrito(producto)}
+                        className="btn-agregar-card"
+                        disabled={stock === 0}
+                      >
+                        🛒 Agregar
+                      </button>
+                    </div>
                   </div>
-                  
-                  <div className="producto-card-footer">
-                    <span className={`estado-badge ${
-                      producto.estado === 'En Stock' ? 'en-stock' : 
-                      producto.estado === 'Stock Bajo' ? 'stock-bajo' : 
-                      'sin-stock'
-                    }`}>
-                      {producto.estado}
-                    </span>
-                    <button 
-                      onClick={() => agregarAlCarrito(producto)}
-                      className="btn-agregar-card"
-                      disabled={producto.stock === 0}
-                    >
-                      🛒 Agregar
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
+            </div>
+          )}
+
+          {productosFiltrados.length === 0 && (
+            <div className="empty-state">
+              <span className="empty-icon">📦</span>
+              <p>No se encontraron productos</p>
+              <span className="empty-hint">Intenta con otros términos de búsqueda</span>
             </div>
           )}
         </div>
@@ -476,22 +479,22 @@ const ProductoVentas = () => {
                   <div className="item-info">
                     <div className="item-nombre">{item.nombre}</div>
                     <div className="item-detalle">
-                      {item.marca_auto} {item.modelo} • {item.codigo}
+                      {item.codigo} • {item.marcaNombre}
                     </div>
-                    <div className="item-precio">S/ {item.precio_venta.toFixed(2)}</div>
+                    <div className="item-precio">S/ {item.precioVenta.toFixed(2)}</div>
                   </div>
                   
                   <div className="item-controles">
                     <input
                       type="number"
                       min="1"
-                      max={item.stock}
+                      max={item.stockDisponible}
                       value={item.cantidad}
                       onChange={(e) => actualizarCantidad(item.id, e.target.value)}
                       className="input-cantidad"
                     />
                     <div className="item-total">
-                      S/ {(item.precio_venta * item.cantidad).toFixed(2)}
+                      S/ {(item.precioVenta * item.cantidad).toFixed(2)}
                     </div>
                     <button 
                       onClick={() => eliminarDelCarrito(item.id)}
@@ -515,9 +518,9 @@ const ProductoVentas = () => {
             <button 
               onClick={abrirModalConfirmacion}
               className="btn-registrar"
-              disabled={carrito.length === 0}
+              disabled={carrito.length === 0 || loading}
             >
-              ✅ Registrar Venta
+              {loading ? '⏳ Procesando...' : '✅ Registrar Venta'}
             </button>
             
             <button 
@@ -558,7 +561,7 @@ const ProductoVentas = () => {
                         <span className="item-resumen-detalle">({item.codigo})</span>
                       </div>
                       <span className="item-resumen-precio">
-                        S/ {(item.precio_venta * item.cantidad).toFixed(2)}
+                        S/ {(item.precioVenta * item.cantidad).toFixed(2)}
                       </span>
                     </div>
                   ))}
@@ -608,14 +611,16 @@ const ProductoVentas = () => {
               <button 
                 onClick={() => setMostrarModalConfirmacion(false)}
                 className="btn-modal-cancelar"
+                disabled={loading}
               >
                 Cancelar
               </button>
               <button 
                 onClick={confirmarRegistroVenta}
                 className="btn-modal-confirmar"
+                disabled={loading}
               >
-                ✅ Confirmar y Registrar
+                {loading ? '⏳ Procesando...' : '✅ Confirmar y Registrar'}
               </button>
             </div>
           </div>

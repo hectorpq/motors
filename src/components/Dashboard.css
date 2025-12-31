@@ -7,6 +7,11 @@
 
 .dashboard-header {
   margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
 .dashboard-header h1 {
@@ -20,6 +25,60 @@
   color: #7f8c8d;
   font-size: 16px;
   margin: 0;
+}
+
+/* Selector de Sede */
+.sede-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sede-selector label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.sede-select {
+  padding: 8px 16px;
+  border: 2px solid #ecf0f1;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+  cursor: pointer;
+  background: white;
+  transition: border-color 0.3s ease;
+}
+
+.sede-select:hover {
+  border-color: #3498db;
+}
+
+.sede-select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Error Banner */
+.error-banner {
+  background: #fee2e2;
+  border: 2px solid #fecaca;
+  border-left: 4px solid #ef4444;
+  color: #991b1b;
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 /* Loading State */
@@ -169,6 +228,164 @@
 
 .movimientos-fill {
   background: linear-gradient(90deg, #3498db, #2980b9);
+}
+
+/* Alert Section - Stock Bajo */
+.alert-section {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #f59e0b;
+}
+
+.alert-section h2 {
+  margin: 0 0 20px 0;
+  color: #2c3e50;
+  font-size: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.alert-table {
+  overflow-x: auto;
+}
+
+.alert-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.alert-table thead {
+  background: #fef3c7;
+}
+
+.alert-table th {
+  padding: 15px;
+  text-align: left;
+  color: #92400e;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #fde68a;
+}
+
+.alert-table td {
+  padding: 15px;
+  color: #2c3e50;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.alert-table tbody tr:hover {
+  background: #fffbeb;
+}
+
+.stock-actual {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* Movements Section */
+.movements-section {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.movements-section h2 {
+  margin: 0 0 20px 0;
+  color: #2c3e50;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.movements-table {
+  overflow-x: auto;
+}
+
+.movements-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.movements-table thead {
+  background: #f8f9fa;
+}
+
+.movements-table th {
+  padding: 15px;
+  text-align: left;
+  color: #7f8c8d;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.movements-table td {
+  padding: 15px;
+  color: #2c3e50;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.movements-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge.danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge.warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge.success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badge-tipo {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cantidad-entrada {
+  color: #10b981;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.cantidad-salida {
+  color: #ef4444;
+  font-weight: 700;
+  font-size: 15px;
 }
 
 /* Chart Section */
@@ -445,9 +662,22 @@
   .dashboard-container {
     padding: 15px;
   }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
   
   .dashboard-header h1 {
     font-size: 24px;
+  }
+
+  .sede-selector {
+    width: 100%;
+  }
+
+  .sede-select {
+    flex: 1;
   }
   
   .stats-grid,
@@ -472,12 +702,18 @@
     font-size: 8px;
   }
   
-  .products-table {
+  .products-table,
+  .alert-table,
+  .movements-table {
     font-size: 14px;
   }
   
   .products-table th,
-  .products-table td {
+  .products-table td,
+  .alert-table th,
+  .alert-table td,
+  .movements-table th,
+  .movements-table td {
     padding: 10px;
   }
 }

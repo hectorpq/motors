@@ -1,125 +1,76 @@
 import React, { useState, useEffect } from 'react';
+import {
+  getProductos,
+  getCategorias,
+  getSubcategorias,
+  getSedes,
+  generarEtiquetas
+} from '../services/api';
 import './Etiquetas.css';
 
 function Etiquetas() {
   const [productos, setProductos] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [subcategorias, setSubcategorias] = useState([]);
+  const [sedes, setSedes] = useState([]);
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [generando, setGenerando] = useState(false);
+  const [error, setError] = useState('');
+  
   const [filtros, setFiltros] = useState({
     busqueda: '',
-    categoria: '',
-    subcategoria: '',
-    sede: ''
+    categoriaId: null,
+    subcategoriaId: null,
+    sedeId: null
   });
-  const [categorias] = useState([
-    'Motor', 'Transmisión', 'Frenos', 'Suspensión', 'Eléctrico'
-  ]);
-  const [subcategorias] = useState({
-    'Motor': ['Aceites', 'Filtros', 'Bujías'],
-    'Transmisión': ['Embragues', 'Cajas', 'Sincronizadores'],
-    'Frenos': ['Pastillas', 'Discos', 'Líquidos'],
-    'Suspensión': ['Amortiguadores', 'Resortes', 'Brazos'],
-    'Eléctrico': ['Baterías', 'Alternadores', 'Arrancadores']
-  });
-  const [sedes] = useState([
-    { id: 'todas', nombre: '🌐 Todas las Sedes' },
-    { id: 'deybimotors', nombre: '🏢 Deybimotors' },
-    { id: 'deybiparts', nombre: '🔧 Deybi Parts' },
-    { id: 'debiauto', nombre: '🚗 Deybi Auto' }
-  ]);
   
   const [productoDetalle, setProductoDetalle] = useState(null);
   const [modalDetalle, setModalDetalle] = useState(false);
-  const [busquedaVoz, setBusquedaVoz] = useState(false);
-  const [busquedaCamara, setBusquedaCamara] = useState(false);
 
   useEffect(() => {
-    cargarProductos();
+    cargarDatos();
   }, []);
 
-  const cargarProductos = () => {
-    // Simulación de productos
-    const productosEjemplo = [
-      {
-        id: 1,
-        codigo: 'DM-001',
-        nombre: 'Aceite Motor 5W-30',
-        categoria: 'Motor',
-        subcategoria: 'Aceites',
-        marca: 'Castrol',
-        modelo: 'Corolla 2020',
-        precio: 50.00,
-        stock: 25,
-        sede: 'deybimotors',
-        descripcion: 'Aceite sintético de alta calidad para motores modernos',
-        ubicacion: 'A-12-3'
-      },
-      {
-        id: 2,
-        codigo: 'DP-015',
-        nombre: 'Filtro de Aceite',
-        categoria: 'Motor',
-        subcategoria: 'Filtros',
-        marca: 'Toyota',
-        modelo: 'Hilux 2019',
-        precio: 30.00,
-        stock: 40,
-        sede: 'deybiparts',
-        descripcion: 'Filtro original para motor diesel',
-        ubicacion: 'B-08-1'
-      },
-      {
-        id: 3,
-        codigo: 'DA-023',
-        nombre: 'Pastillas de Freno Delanteras',
-        categoria: 'Frenos',
-        subcategoria: 'Pastillas',
-        marca: 'Honda',
-        modelo: 'Civic 2021',
-        precio: 120.00,
-        stock: 15,
-        sede: 'debiauto',
-        descripcion: 'Pastillas cerámicas de alto rendimiento',
-        ubicacion: 'C-15-2'
-      },
-      {
-        id: 4,
-        codigo: 'DM-045',
-        nombre: 'Bujía Iridium',
-        categoria: 'Motor',
-        subcategoria: 'Bujías',
-        marca: 'Nissan',
-        modelo: 'Sentra 2018',
-        precio: 45.00,
-        stock: 60,
-        sede: 'deybimotors',
-        descripcion: 'Bujía de larga duración con punta de iridio',
-        ubicacion: 'A-05-4'
-      },
-      {
-        id: 5,
-        codigo: 'DP-067',
-        nombre: 'Amortiguador Delantero',
-        categoria: 'Suspensión',
-        subcategoria: 'Amortiguadores',
-        marca: 'Toyota',
-        modelo: 'RAV4 2022',
-        precio: 280.00,
-        stock: 8,
-        sede: 'deybiparts',
-        descripcion: 'Amortiguador de gas con válvula progresiva',
-        ubicacion: 'D-20-1'
-      }
-    ];
-    setProductos(productosEjemplo);
+  const cargarDatos = async () => {
+    try {
+      setLoading(true);
+      setError('');
+
+      const [prodRes, catRes, subRes, sedesRes] = await Promise.all([
+        getProductos(),
+        getCategorias(),
+        getSubcategorias(),
+        getSedes()
+      ]);
+
+      setProductos(prodRes.data);
+      setCategorias(catRes.data);
+      setSubcategorias(subRes.data);
+      setSedes([
+        { id: null, nombre: 'Todas las Sedes' },
+        ...sedesRes.data
+      ]);
+
+    } catch (error) {
+      console.error('Error:', error);
+      setError('Error al cargar los datos');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const productosFiltrados = productos.filter(producto => {
-    const cumpleBusqueda = producto.nombre.toLowerCase().includes(filtros.busqueda.toLowerCase()) ||
-                          producto.codigo.toLowerCase().includes(filtros.busqueda.toLowerCase()) ||
-                          producto.marca.toLowerCase().includes(filtros.busqueda.toLowerCase());
-    const cumpleCategoria = !filtros.categoria || producto.categoria === filtros.categoria;
-    const cumpleSubcategoria = !filtros.subcategoria || producto.subcategoria === filtros.subcategoria;
-    const cumpleSede = !filtros.sede || filtros.sede === 'todas' || producto.sede === filtros.sede;
+    // Búsqueda segura
+    const busquedaLower = (filtros.busqueda || '').toLowerCase();
+    const cumpleBusqueda = !filtros.busqueda || 
+      (producto.nombre || '').toLowerCase().includes(busquedaLower) ||
+      (producto.codigo || '').toLowerCase().includes(busquedaLower) ||
+      (producto.marcaNombre || '').toLowerCase().includes(busquedaLower);
+    
+    const cumpleCategoria = !filtros.categoriaId || producto.categoriaId === filtros.categoriaId;
+    const cumpleSubcategoria = !filtros.subcategoriaId || producto.subcategoriaId === filtros.subcategoriaId;
+    const cumpleSede = !filtros.sedeId || producto.stocks?.some(s => s.sedeId === filtros.sedeId);
     
     return cumpleBusqueda && cumpleCategoria && cumpleSubcategoria && cumpleSede;
   });
@@ -137,8 +88,9 @@ function Etiquetas() {
   };
 
   const actualizarCantidad = (productoId, cantidad) => {
+    const num = parseInt(cantidad) || 1;
     setProductosSeleccionados(prev =>
-      prev.map(p => p.id === productoId ? { ...p, cantidadEtiquetas: parseInt(cantidad) || 1 } : p)
+      prev.map(p => p.id === productoId ? { ...p, cantidadEtiquetas: Math.max(1, num) } : p)
     );
   };
 
@@ -147,56 +99,69 @@ function Etiquetas() {
     setModalDetalle(true);
   };
 
-  const iniciarBusquedaVoz = () => {
-    setBusquedaVoz(true);
-    // Simular reconocimiento de voz
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'es-ES';
-      recognition.continuous = false;
-      
-      recognition.onresult = (event) => {
-        const texto = event.results[0][0].transcript;
-        setFiltros(prev => ({ ...prev, busqueda: texto }));
-        setBusquedaVoz(false);
-      };
-      
-      recognition.onerror = () => {
-        setBusquedaVoz(false);
-        alert('Error en el reconocimiento de voz');
-      };
-      
-      recognition.start();
-    } else {
-      alert('Tu navegador no soporta reconocimiento de voz');
-      setBusquedaVoz(false);
-    }
-  };
-
-  const iniciarBusquedaCamara = () => {
-    setBusquedaCamara(true);
-    // Aquí iría la lógica del escáner de código de barras
-    alert('Función de escáner en desarrollo. Por ahora, busca manualmente.');
-    setTimeout(() => setBusquedaCamara(false), 2000);
-  };
-
-  const generarPDF = () => {
+  const generarPDF = async () => {
     if (productosSeleccionados.length === 0) {
       alert('Selecciona al menos un producto para generar etiquetas');
       return;
     }
 
-    alert(`Generando ${productosSeleccionados.reduce((sum, p) => sum + p.cantidadEtiquetas, 0)} etiquetas PDF con códigos de barras...`);
-    
-    // Aquí iría la lógica real de generación de PDF con biblioteca como jsPDF
-    console.log('Productos seleccionados:', productosSeleccionados);
+    try {
+      setGenerando(true);
+      
+      const productosIds = productosSeleccionados.map(p => p.id);
+      const cantidadPorProducto = productosSeleccionados[0].cantidadEtiquetas; // Usar la primera cantidad
+
+      const response = await generarEtiquetas(productosIds, cantidadPorProducto);
+
+      // Crear blob y descargar
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `etiquetas_${new Date().getTime()}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      alert(`✅ Etiquetas generadas correctamente: ${totalEtiquetas} etiquetas`);
+      
+    } catch (error) {
+      console.error('Error al generar PDF:', error);
+      alert('❌ Error al generar las etiquetas');
+    } finally {
+      setGenerando(false);
+    }
+  };
+
+  const getStockTotal = (producto) => {
+    return producto.stocks?.reduce((sum, s) => sum + s.cantidad, 0) || 0;
   };
 
   const totalEtiquetas = productosSeleccionados.reduce((sum, p) => sum + p.cantidadEtiquetas, 0);
 
+  const subcategoriasFiltradas = subcategorias.filter(
+    sub => !filtros.categoriaId || sub.categoriaId === filtros.categoriaId
+  );
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <div className="spinner"></div>
+        <p style={{ marginLeft: '16px' }}>Cargando productos...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="etiquetas-container">
+      {/* Error Banner */}
+      {error && (
+        <div className="error-banner">
+          <span>⚠️ {error}</span>
+          <button onClick={() => setError('')}>✕</button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="etiquetas-header">
         <div className="header-titulo">
@@ -215,7 +180,7 @@ function Etiquetas() {
         </div>
       </div>
 
-      {/* Filtros Avanzados */}
+      {/* Filtros */}
       <div className="filtros-section">
         <div className="filtros-principales">
           <div className="filtro-busqueda">
@@ -226,52 +191,47 @@ function Etiquetas() {
               onChange={(e) => setFiltros({ ...filtros, busqueda: e.target.value })}
               className="input-busqueda"
             />
-            <button 
-              className={`btn-voz ${busquedaVoz ? 'activo' : ''}`}
-              onClick={iniciarBusquedaVoz}
-              title="Búsqueda por voz"
-            >
-              {busquedaVoz ? '🎤 Escuchando...' : '🎤'}
-            </button>
-            <button 
-              className={`btn-camara ${busquedaCamara ? 'activo' : ''}`}
-              onClick={iniciarBusquedaCamara}
-              title="Escanear código de barras"
-            >
-              {busquedaCamara ? '📷 Escaneando...' : '📷'}
-            </button>
           </div>
 
           <select 
-            value={filtros.sede}
-            onChange={(e) => setFiltros({ ...filtros, sede: e.target.value })}
+            value={filtros.sedeId || ''}
+            onChange={(e) => setFiltros({ ...filtros, sedeId: e.target.value ? parseInt(e.target.value) : null })}
             className="select-filtro"
           >
             {sedes.map(sede => (
-              <option key={sede.id} value={sede.id}>{sede.nombre}</option>
+              <option key={sede.id || 'todas'} value={sede.id || ''}>
+                {sede.id === null ? '🌐 ' : '🏢 '}{sede.nombre}
+              </option>
             ))}
           </select>
 
           <select 
-            value={filtros.categoria}
-            onChange={(e) => setFiltros({ ...filtros, categoria: e.target.value, subcategoria: '' })}
+            value={filtros.categoriaId || ''}
+            onChange={(e) => setFiltros({ 
+              ...filtros, 
+              categoriaId: e.target.value ? parseInt(e.target.value) : null,
+              subcategoriaId: null 
+            })}
             className="select-filtro"
           >
             <option value="">📦 Todas las Categorías</option>
             {categorias.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
+              <option key={cat.id} value={cat.id}>{cat.nombre}</option>
             ))}
           </select>
 
-          {filtros.categoria && (
+          {filtros.categoriaId && subcategoriasFiltradas.length > 0 && (
             <select 
-              value={filtros.subcategoria}
-              onChange={(e) => setFiltros({ ...filtros, subcategoria: e.target.value })}
+              value={filtros.subcategoriaId || ''}
+              onChange={(e) => setFiltros({ 
+                ...filtros, 
+                subcategoriaId: e.target.value ? parseInt(e.target.value) : null 
+              })}
               className="select-filtro"
             >
               <option value="">🔖 Todas las Subcategorías</option>
-              {subcategorias[filtros.categoria]?.map(sub => (
-                <option key={sub} value={sub}>{sub}</option>
+              {subcategoriasFiltradas.map(sub => (
+                <option key={sub.id} value={sub.id}>{sub.nombre}</option>
               ))}
             </select>
           )}
@@ -279,9 +239,6 @@ function Etiquetas() {
 
         <div className="filtros-info">
           <span>Mostrando {productosFiltrados.length} productos</span>
-          {filtros.busqueda && <span className="badge">Búsqueda: "{filtros.busqueda}"</span>}
-          {filtros.categoria && <span className="badge">{filtros.categoria}</span>}
-          {filtros.subcategoria && <span className="badge">{filtros.subcategoria}</span>}
         </div>
       </div>
 
@@ -292,6 +249,8 @@ function Etiquetas() {
           <div className="productos-grid">
             {productosFiltrados.map(producto => {
               const seleccionado = productosSeleccionados.find(p => p.id === producto.id);
+              const stockTotal = getStockTotal(producto);
+              
               return (
                 <div 
                   key={producto.id} 
@@ -311,9 +270,9 @@ function Etiquetas() {
                   </div>
                   
                   <div className="producto-detalles-mini">
-                    <span className="badge-categoria">{producto.categoria}</span>
-                    <span className="badge-stock">Stock: {producto.stock}</span>
-                    <span className="badge-precio">S/ {producto.precio.toFixed(2)}</span>
+                    <span className="badge-categoria">{producto.categoriaNombre || 'Sin categoría'}</span>
+                    <span className="badge-stock">Stock: {stockTotal}</span>
+                    <span className="badge-precio">S/ {producto.precioVenta?.toFixed(2) || '0.00'}</span>
                   </div>
 
                   {seleccionado && (
@@ -339,6 +298,14 @@ function Etiquetas() {
               );
             })}
           </div>
+
+          {productosFiltrados.length === 0 && (
+            <div className="empty-state">
+              <span>📦</span>
+              <p>No se encontraron productos</p>
+              <small>Intenta con otros filtros</small>
+            </div>
+          )}
         </div>
 
         {/* Panel de Seleccionados */}
@@ -384,8 +351,12 @@ function Etiquetas() {
                   </div>
                 </div>
                 
-                <button className="btn-generar-pdf" onClick={generarPDF}>
-                  📄 Generar PDF con Códigos de Barras
+                <button 
+                  className="btn-generar-pdf" 
+                  onClick={generarPDF}
+                  disabled={generando}
+                >
+                  {generando ? '⏳ Generando...' : '📄 Generar PDF con Códigos de Barras'}
                 </button>
               </div>
             </>
@@ -414,40 +385,30 @@ function Etiquetas() {
                 </div>
                 <div className="detalle-item">
                   <label>Categoría:</label>
-                  <span>{productoDetalle.categoria}</span>
+                  <span>{productoDetalle.categoriaNombre || 'N/A'}</span>
                 </div>
                 <div className="detalle-item">
                   <label>Subcategoría:</label>
-                  <span>{productoDetalle.subcategoria}</span>
+                  <span>{productoDetalle.subcategoriaNombre || 'N/A'}</span>
                 </div>
                 <div className="detalle-item">
                   <label>Marca:</label>
-                  <span>{productoDetalle.marca}</span>
-                </div>
-                <div className="detalle-item">
-                  <label>Modelo:</label>
-                  <span>{productoDetalle.modelo}</span>
+                  <span>{productoDetalle.marcaNombre || 'N/A'}</span>
                 </div>
                 <div className="detalle-item">
                   <label>Precio:</label>
-                  <span className="precio">S/ {productoDetalle.precio.toFixed(2)}</span>
+                  <span className="precio">S/ {productoDetalle.precioVenta?.toFixed(2) || '0.00'}</span>
                 </div>
                 <div className="detalle-item">
-                  <label>Stock:</label>
-                  <span className="stock">{productoDetalle.stock} unidades</span>
+                  <label>Stock Total:</label>
+                  <span className="stock">{getStockTotal(productoDetalle)} unidades</span>
                 </div>
-                <div className="detalle-item">
-                  <label>Sede:</label>
-                  <span>{sedes.find(s => s.id === productoDetalle.sede)?.nombre}</span>
-                </div>
-                <div className="detalle-item">
-                  <label>Ubicación:</label>
-                  <span>{productoDetalle.ubicacion}</span>
-                </div>
-                <div className="detalle-item full-width">
-                  <label>Descripción:</label>
-                  <p>{productoDetalle.descripcion}</p>
-                </div>
+                {productoDetalle.descripcion && (
+                  <div className="detalle-item full-width">
+                    <label>Descripción:</label>
+                    <p>{productoDetalle.descripcion}</p>
+                  </div>
+                )}
               </div>
 
               <div className="codigo-barras-preview">

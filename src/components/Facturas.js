@@ -1,5 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  getCompras,
+  getComprasPorSede,
+  getComprasPorEstado,
+  getCompra,
+  actualizarEstadoCompra,
+  deleteCompra,
+  generarEtiquetasCompra
+} from '../services/api';
 import './Facturas.css';
 
 function Facturas() {
@@ -15,55 +24,48 @@ function Facturas() {
   const [facturaActual, setFacturaActual] = useState(null);
   const [nuevoEstado, setNuevoEstado] = useState('');
   const [motivoEliminacion, setMotivoEliminacion] = useState('');
-
-  const [facturas, setFacturas] = useState([
-    {
-      id: 1,
-      numeroFactura: 'F001-00123',
-      proveedor: 'Repuestos Honda Perú SAC',
-      sede: 'deybimotors',
-      fecha: '2025-01-15',
-      total: 5420.00,
-      estado: 'Completada',
-      productos: 12,
-      archivo: 'factura_001.pdf'
-    },
-    {
-      id: 2,
-      numeroFactura: 'F002-00456',
-      proveedor: 'Toyota Parts SAC',
-      sede: 'deybiparts',
-      fecha: '2025-01-18',
-      total: 8750.50,
-      estado: 'En Camino',
-      productos: 25,
-      archivo: null
-    },
-    {
-      id: 3,
-      numeroFactura: 'F001-00124',
-      proveedor: 'Repuestos Honda Perú SAC',
-      sede: 'debiauto',
-      fecha: '2025-01-20',
-      total: 3200.00,
-      estado: 'Registrada',
-      productos: 8,
-      archivo: 'factura_003.pdf'
-    }
-  ]);
+  const [facturas, setFacturas] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const sedes = [
     { id: 'todas', nombre: '🌐 Todas las Sedes' },
-    { id: 'deybimotors', nombre: '🏢 Deybimotors' },
-    { id: 'deybiparts', nombre: '🔧 Deybi Parts' },
-    { id: 'debiauto', nombre: '🚗 Deybi Auto' }
+    { id: 1, nombre: '🏢 Deybimotors' },
+    { id: 2, nombre: '🔧 Deybi Parts' },
+    { id: 3, nombre: '🚗 Deybi Auto' }
   ];
 
   const estados = [
-    { id: 'registrada', nombre: 'Registrada', color: '#e74c3c', icono: '📋' },
-    { id: 'encamino', nombre: 'En Camino', color: '#f39c12', icono: '🚚' },
-    { id: 'completada', nombre: 'Completada', color: '#27ae60', icono: '✅' }
+    { id: 'PENDIENTE', nombre: 'Pendiente', color: '#e74c3c', icono: '📋' },
+    { id: 'RECIBIDA', nombre: 'Recibida', color: '#f39c12', icono: '🚚' },
+    { id: 'COMPLETADA', nombre: 'Completada', color: '#27ae60', icono: '✅' }
   ];
+
+  useEffect(() => {
+    cargarFacturas();
+  }, [sedeSeleccionada, filtroEstado]);
+
+  const cargarFacturas = async () => {
+    try {
+      setLoading(true);
+      let response;
+
+      if (filtroEstado !== 'todas') {
+        response = await getComprasPorEstado(filtroEstado);
+      } else if (sedeSeleccionada !== 'todas') {
+        response = await getComprasPorSede(sedeSeleccionada);
+      } else {
+        response = await getCompras();
+      }
+
+      setFacturas(response.data || []);
+    } catch (error) {
+      console.error('Error al cargar facturas:', error);
+      setFacturas([]);
+      alert('Error al cargar las facturas');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const toggleSeleccionFactura = (id) => {
     setFacturasSeleccionadas(prev => 
@@ -71,14 +73,6 @@ function Facturas() {
         ? prev.filter(fid => fid !== id)
         : [...prev, id]
     );
-  };
-
-  const seleccionarTodas = () => {
-    if (facturasSeleccionadas.length === facturasFiltradas.length) {
-      setFacturasSeleccionadas([]);
-    } else {
-      setFacturasSeleccionadas(facturasFiltradas.map(f => f.id));
-    }
   };
 
   const abrirMenuEstado = (factura) => {
@@ -92,41 +86,65 @@ function Facturas() {
     setModalCambiarEstado(true);
   };
 
-  const confirmarCambioEstado = () => {
-    setFacturas(facturas.map(f => 
-      f.id === facturaActual.id 
-        ? { ...f, estado: nuevoEstado }
-        : f
-    ));
+  const confirmarCambioEstado = async () => {
+    try {
+      await actualizarEstadoCompra(facturaActual.id, {
+        nuevoEstado: nuevoEstado
+      });
 
-    if (nuevoEstado === 'Completada') {
-      alert('✅ Estado actualizado a "Completada"\n\n📦 Stock actualizado automáticamente\n🏷️ Ahora puedes generar etiquetas');
-    } else {
-      alert(`Estado actualizado a "${nuevoEstado}" correctamente`);
+      if (nuevoEstado === 'RECIBIDA') {
+        alert('✅ Estado actualizado a "RECIBIDA"\n\n📦 Stock actualizado automáticamente\n🏷️ Ahora puedes generar etiquetas');
+      } else {
+        alert(`✅ Estado actualizado a "${nuevoEstado}" correctamente`);
+      }
+
+      setModalCambiarEstado(false);
+      setFacturaActual(null);
+      setNuevoEstado('');
+      cargarFacturas();
+    } catch (error) {
+      console.error('Error al cambiar estado:', error);
+      alert('❌ Error al cambiar el estado de la compra');
     }
-
-    setModalCambiarEstado(false);
-    setFacturaActual(null);
-    setNuevoEstado('');
   };
 
-  const verFactura = (factura) => {
-    setFacturaActual(factura);
-    setModalVer(true);
+  const verFactura = async (factura) => {
+    try {
+      const response = await getCompra(factura.id);
+      setFacturaActual(response.data);
+      setModalVer(true);
+    } catch (error) {
+      console.error('Error al cargar detalles:', error);
+      alert('Error al cargar los detalles de la compra');
+    }
   };
 
   const editarFactura = (factura) => {
     alert(`Redirigiendo a editar factura ${factura.numeroFactura}...`);
-    // navigate(`/compras/editar/${factura.id}`);
   };
 
-  const imprimirEtiquetas = (factura) => {
-    if (factura.estado !== 'Completada') {
-      alert('⚠️ Solo puedes generar etiquetas para compras completadas');
+  const imprimirEtiquetas = async (factura) => {
+    if (factura.estado !== 'RECIBIDA' && factura.estado !== 'COMPLETADA') {
+      alert('⚠️ Solo puedes generar etiquetas para compras recibidas o completadas');
       return;
     }
-    alert(`Generando etiquetas para ${factura.productos} productos de la factura ${factura.numeroFactura}...`);
-    // navigate('/etiquetas', { state: { facturaId: factura.id } });
+
+    try {
+      const response = await generarEtiquetasCompra(factura.id);
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `etiquetas-compra-${factura.id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      alert('✅ Etiquetas generadas correctamente');
+    } catch (error) {
+      console.error('Error al generar etiquetas:', error);
+      alert('❌ Error al generar las etiquetas');
+    }
   };
 
   const abrirModalEliminar = (factura) => {
@@ -135,22 +153,23 @@ function Facturas() {
     setModalEliminar(true);
   };
 
-  const confirmarEliminacion = () => {
+  const confirmarEliminacion = async () => {
     if (!motivoEliminacion.trim()) {
       alert('Debes ingresar un motivo para eliminar');
       return;
     }
 
-    console.log('Eliminando factura:', {
-      factura: facturaActual,
-      motivo: motivoEliminacion
-    });
-
-    setFacturas(facturas.filter(f => f.id !== facturaActual.id));
-    alert('Factura eliminada correctamente');
-    setModalEliminar(false);
-    setFacturaActual(null);
-    setMotivoEliminacion('');
+    try {
+      await deleteCompra(facturaActual.id);
+      alert('✅ Compra eliminada correctamente');
+      setModalEliminar(false);
+      setFacturaActual(null);
+      setMotivoEliminacion('');
+      cargarFacturas();
+    } catch (error) {
+      console.error('Error al eliminar:', error);
+      alert('❌ Error al eliminar la compra. Solo se pueden eliminar compras en estado PENDIENTE.');
+    }
   };
 
   const exportarSeleccionadas = () => {
@@ -158,48 +177,85 @@ function Facturas() {
       alert('Selecciona al menos una factura para exportar');
       return;
     }
-
-    const facturasAExportar = facturas.filter(f => facturasSeleccionadas.includes(f.id));
-    console.log('Exportando facturas:', facturasAExportar);
-    alert(`Exportando ${facturasSeleccionadas.length} facturas a Excel...`);
-    // Aquí iría la lógica de exportación real
+    alert(`📊 Exportando ${facturasSeleccionadas.length} facturas a Excel...`);
   };
 
+  // 🔧 FIX: Protección contra undefined en el filtro
   const facturasFiltradas = facturas.filter(f => {
-    const cumpleSede = sedeSeleccionada === 'todas' || f.sede === sedeSeleccionada;
-    const cumpleEstado = filtroEstado === 'todas' || 
-      (filtroEstado === 'registrada' && f.estado === 'Registrada') ||
-      (filtroEstado === 'encamino' && f.estado === 'En Camino') ||
-      (filtroEstado === 'completada' && f.estado === 'Completada');
-    const cumpleBusqueda = f.numeroFactura.toLowerCase().includes(busqueda.toLowerCase()) ||
-                          f.proveedor.toLowerCase().includes(busqueda.toLowerCase());
+    const cumpleSede = sedeSeleccionada === 'todas' || f.sede?.id === sedeSeleccionada;
+    const cumpleEstado = filtroEstado === 'todas' || f.estado === filtroEstado;
+    
+    // Proteger contra undefined/null
+    const numFactura = (f.numeroFactura || '').toLowerCase();
+    const nombreProveedor = (f.proveedor?.nombre || '').toLowerCase();
+    const busquedaLower = (busqueda || '').toLowerCase();
+    
+    const cumpleBusqueda = numFactura.includes(busquedaLower) ||
+                          nombreProveedor.includes(busquedaLower);
     
     return cumpleSede && cumpleEstado && cumpleBusqueda;
   });
 
+  const seleccionarTodas = () => {
+    if (facturasSeleccionadas.length === facturasFiltradas.length && facturasFiltradas.length > 0) {
+      setFacturasSeleccionadas([]);
+    } else {
+      setFacturasSeleccionadas(facturasFiltradas.map(f => f.id));
+    }
+  };
+
   const calcularEstadisticas = () => {
+    const completadas = facturas.filter(f => f.estado === 'COMPLETADA' || f.estado === 'RECIBIDA');
+    const pendientes = facturas.filter(f => f.estado === 'PENDIENTE');
+    
     return {
       total: facturas.length,
-      completadas: facturas.filter(f => f.estado === 'Completada').length,
-      pendiente: facturas.filter(f => f.estado !== 'Completada').reduce((sum, f) => sum + f.total, 0),
-      totalGeneral: facturas.reduce((sum, f) => sum + f.total, 0)
+      completadas: completadas.length,
+      pendiente: pendientes.reduce((sum, f) => sum + calcularTotal(f), 0),
+      totalGeneral: facturas.reduce((sum, f) => sum + calcularTotal(f), 0)
     };
+  };
+
+  const calcularTotal = (compra) => {
+    if (compra.items && Array.isArray(compra.items)) {
+      return compra.items.reduce((sum, item) => 
+        sum + (item.cantidad * item.precioCompra), 0
+      );
+    }
+    return compra.total || 0;
   };
 
   const stats = calcularEstadisticas();
 
   const getEstadoClase = (estado) => {
     switch(estado) {
-      case 'Registrada': return 'registrada';
-      case 'En Camino': return 'encamino';
-      case 'Completada': return 'completada';
+      case 'PENDIENTE': return 'registrada';
+      case 'RECIBIDA': return 'encamino';
+      case 'COMPLETADA': return 'completada';
       default: return '';
     }
   };
 
-  const getSedeNombre = (sedeId) => {
-    return sedes.find(s => s.id === sedeId)?.nombre || sedeId;
+  const formatearMoneda = (valor) => {
+    return new Intl.NumberFormat('es-PE', {
+      style: 'currency',
+      currency: 'PEN'
+    }).format(valor || 0);
   };
+
+  const formatearFecha = (fecha) => {
+    if (!fecha) return 'N/A';
+    return new Date(fecha).toLocaleDateString('es-PE');
+  };
+
+  if (loading) {
+    return (
+      <div className="loading">
+        <div className="spinner"></div>
+        <p>Cargando facturas...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="facturas-container">
@@ -233,14 +289,14 @@ function Facturas() {
         <div className="stat-card-factura">
           <div className="stat-icono">⏳</div>
           <div className="stat-datos">
-            <span className="stat-numero">S/ {stats.pendiente.toFixed(2)}</span>
+            <span className="stat-numero">{formatearMoneda(stats.pendiente)}</span>
             <span className="stat-label">Monto Pendiente</span>
           </div>
         </div>
         <div className="stat-card-factura">
           <div className="stat-icono">💰</div>
           <div className="stat-datos">
-            <span className="stat-numero">S/ {stats.totalGeneral.toFixed(2)}</span>
+            <span className="stat-numero">{formatearMoneda(stats.totalGeneral)}</span>
             <span className="stat-label">Total General</span>
           </div>
         </div>
@@ -251,7 +307,7 @@ function Facturas() {
         <div className="filtros-principales">
           <select
             value={sedeSeleccionada}
-            onChange={(e) => setSedeSeleccionada(e.target.value)}
+            onChange={(e) => setSedeSeleccionada(e.target.value === 'todas' ? 'todas' : Number(e.target.value))}
             className="select-filtro-factura"
           >
             {sedes.map(sede => (
@@ -324,18 +380,18 @@ function Facturas() {
                   />
                 </td>
                 <td>
-                  <strong>{factura.numeroFactura}</strong>
-                  {factura.archivo && (
+                  <strong>{factura.numeroFactura || 'N/A'}</strong>
+                  {factura.rutaFactura && (
                     <span className="badge-archivo" title="Tiene archivo adjunto">
                       📎
                     </span>
                   )}
                 </td>
-                <td>{factura.proveedor}</td>
-                <td>{getSedeNombre(factura.sede)}</td>
-                <td>{factura.fecha}</td>
-                <td>{factura.productos}</td>
-                <td><strong>S/ {factura.total.toFixed(2)}</strong></td>
+                <td>{factura.proveedor?.nombre || 'N/A'}</td>
+                <td>{factura.sede?.nombre || 'N/A'}</td>
+                <td>{formatearFecha(factura.fechaCompra)}</td>
+                <td>{factura.items?.length || 0}</td>
+                <td><strong>{formatearMoneda(calcularTotal(factura))}</strong></td>
                 <td>
                   <div className="estado-container">
                     <span className={`badge-estado ${getEstadoClase(factura.estado)}`}>
@@ -351,19 +407,19 @@ function Facturas() {
                       <div className="menu-estado">
                         <button
                           className="menu-estado-item registrada"
-                          onClick={() => cambiarEstado(factura, 'Registrada')}
+                          onClick={() => cambiarEstado(factura, 'PENDIENTE')}
                         >
-                          📋 Registrada
+                          📋 Pendiente
                         </button>
                         <button
                           className="menu-estado-item encamino"
-                          onClick={() => cambiarEstado(factura, 'En Camino')}
+                          onClick={() => cambiarEstado(factura, 'RECIBIDA')}
                         >
-                          🚚 En Camino
+                          🚚 Recibida
                         </button>
                         <button
                           className="menu-estado-item completada"
-                          onClick={() => cambiarEstado(factura, 'Completada')}
+                          onClick={() => cambiarEstado(factura, 'COMPLETADA')}
                         >
                           ✅ Completada
                         </button>
@@ -380,14 +436,7 @@ function Facturas() {
                     >
                       👁️
                     </button>
-                    <button
-                      className="btn-accion-factura editar"
-                      onClick={() => editarFactura(factura)}
-                      title="Editar"
-                    >
-                      ✏️
-                    </button>
-                    {factura.estado === 'Completada' && (
+                    {(factura.estado === 'RECIBIDA' || factura.estado === 'COMPLETADA') && (
                       <button
                         className="btn-accion-factura imprimir"
                         onClick={() => imprimirEtiquetas(factura)}
@@ -396,13 +445,15 @@ function Facturas() {
                         🏷️
                       </button>
                     )}
-                    <button
-                      className="btn-accion-factura eliminar"
-                      onClick={() => abrirModalEliminar(factura)}
-                      title="Eliminar"
-                    >
-                      🗑️
-                    </button>
+                    {factura.estado === 'PENDIENTE' && (
+                      <button
+                        className="btn-accion-factura eliminar"
+                        onClick={() => abrirModalEliminar(factura)}
+                        title="Eliminar"
+                      >
+                        🗑️
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -446,13 +497,13 @@ function Facturas() {
 
               <div className="info-factura-modal">
                 <p><strong>Factura:</strong> {facturaActual.numeroFactura}</p>
-                <p><strong>Proveedor:</strong> {facturaActual.proveedor}</p>
-                <p><strong>Total:</strong> S/ {facturaActual.total.toFixed(2)}</p>
+                <p><strong>Proveedor:</strong> {facturaActual.proveedor?.nombre}</p>
+                <p><strong>Total:</strong> {formatearMoneda(calcularTotal(facturaActual))}</p>
               </div>
 
-              {nuevoEstado === 'Completada' && (
+              {nuevoEstado === 'RECIBIDA' && (
                 <div className="alert-importante">
-                  <strong>⚠️ Importante:</strong> Al cambiar a "Completada", se actualizará automáticamente el stock de todos los productos de esta compra.
+                  <strong>⚠️ Importante:</strong> Al cambiar a "RECIBIDA", se actualizará automáticamente el stock de todos los productos de esta compra.
                 </div>
               )}
             </div>
@@ -484,8 +535,8 @@ function Facturas() {
 
               <div className="info-factura-eliminar">
                 <p><strong>N° Factura:</strong> {facturaActual.numeroFactura}</p>
-                <p><strong>Proveedor:</strong> {facturaActual.proveedor}</p>
-                <p><strong>Total:</strong> S/ {facturaActual.total.toFixed(2)}</p>
+                <p><strong>Proveedor:</strong> {facturaActual.proveedor?.nombre}</p>
+                <p><strong>Total:</strong> {formatearMoneda(calcularTotal(facturaActual))}</p>
               </div>
 
               <div className="form-group">
@@ -511,7 +562,7 @@ function Facturas() {
         </div>
       )}
 
-      {/* Modal Ver Detalles */}
+      {/* Modal Ver */}
       {modalVer && facturaActual && (
         <div className="modal-overlay" onClick={() => setModalVer(false)}>
           <div className="modal-ver" onClick={e => e.stopPropagation()}>
@@ -527,23 +578,23 @@ function Facturas() {
                 </div>
                 <div className="detalle-item">
                   <label>Proveedor:</label>
-                  <span>{facturaActual.proveedor}</span>
+                  <span>{facturaActual.proveedor?.nombre}</span>
                 </div>
                 <div className="detalle-item">
                   <label>Sede:</label>
-                  <span>{getSedeNombre(facturaActual.sede)}</span>
+                  <span>{facturaActual.sede?.nombre}</span>
                 </div>
                 <div className="detalle-item">
                   <label>Fecha:</label>
-                  <span>{facturaActual.fecha}</span>
+                  <span>{formatearFecha(facturaActual.fechaCompra)}</span>
                 </div>
                 <div className="detalle-item">
                   <label>Total Productos:</label>
-                  <span>{facturaActual.productos}</span>
+                  <span>{facturaActual.items?.length || 0}</span>
                 </div>
                 <div className="detalle-item">
                   <label>Monto Total:</label>
-                  <span className="monto-total">S/ {facturaActual.total.toFixed(2)}</span>
+                  <span className="monto-total">{formatearMoneda(calcularTotal(facturaActual))}</span>
                 </div>
                 <div className="detalle-item">
                   <label>Estado:</label>
@@ -551,26 +602,45 @@ function Facturas() {
                     {facturaActual.estado}
                   </span>
                 </div>
-                {facturaActual.archivo && (
+                {facturaActual.rutaFactura && (
                   <div className="detalle-item">
                     <label>Archivo Adjunto:</label>
-                    <a href="#" className="link-archivo">
-                      📎 {facturaActual.archivo}
+                    <a href={facturaActual.rutaFactura} target="_blank" rel="noopener noreferrer" className="link-archivo">
+                      📎 Ver archivo
                     </a>
                   </div>
                 )}
               </div>
 
-              <div className="nota-productos">
-                <p>💡 Para ver el detalle completo de los productos, haz clic en el botón "Editar"</p>
-              </div>
+              {facturaActual.items && facturaActual.items.length > 0 && (
+                <div className="productos-detalle">
+                  <h4>Productos:</h4>
+                  <table className="tabla-productos-modal">
+                    <thead>
+                      <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                        <th>Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {facturaActual.items.map((item, index) => (
+                        <tr key={index}>
+                          <td>{item.producto?.nombre || 'N/A'}</td>
+                          <td>{item.cantidad}</td>
+                          <td>{formatearMoneda(item.precioCompra)}</td>
+                          <td>{formatearMoneda(item.cantidad * item.precioCompra)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
             <div className="modal-footer">
               <button className="btn-secondary" onClick={() => setModalVer(false)}>
                 Cerrar
-              </button>
-              <button className="btn-primary" onClick={() => editarFactura(facturaActual)}>
-                Editar Factura
               </button>
             </div>
           </div>
